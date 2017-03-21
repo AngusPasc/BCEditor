@@ -1554,10 +1554,10 @@ begin
           and (ALine[1 + LStartPosition - 1] = LFindTokenNode.Token.Attribute.EscapeChar))) then
         Continue;
 
-      if (AIndex < Length(ALine)) then
+      if (AIndex <= Length(ALine)) then
         Inc(AIndex);
 
-      if (LFindTokenNode.BreakType = btAny) or (CharInSet(ALine[1 + AIndex], ACurrentRange.Delimiters)) then
+      if ((LFindTokenNode.BreakType = btAny) or (AIndex = Length(ALine)) or CharInSet(ALine[1 + AIndex], ACurrentRange.Delimiters)) then
       begin
         AToken := LFindTokenNode.Token;
         Exit(True);
@@ -1569,7 +1569,7 @@ begin
   for LIndex := 0 to Sets.Count - 1 do
     LAllowedDelimiters := LAllowedDelimiters - TSet(Sets.List[LIndex]).CharSet;
 
-  if (ALine[1 + AIndex] <> '') then
+  if (AIndex < Length(ALine)) then
     for LIndex := 0 to Sets.Count - 1 do
     begin
       AIndex := LStartPosition;
@@ -2619,12 +2619,14 @@ begin
         LDelimiters := FAllDelimiters;
 
       if (Ord(FCurrentLine[1 + FCurrentLineIndex - 1]) < 256) then
-        while (Ord(FCurrentLine[1 + FCurrentLineIndex]) < 256)
-          and not CharInSet(FCurrentLine[1 + FCurrentLineIndex], LDelimiters) do
+        while ((FCurrentLineIndex < Length(FCurrentLine))
+          and (Ord(FCurrentLine[1 + FCurrentLineIndex]) < 256)
+          and not CharInSet(FCurrentLine[1 + FCurrentLineIndex], LDelimiters)) do
           Inc(FCurrentLineIndex)
       else
-        while (Ord(FCurrentLine[1 + FCurrentLineIndex]) >= 256)
-          and not CharInSet(FCurrentLine[1 + FCurrentLineIndex], LDelimiters) do
+        while ((FCurrentLineIndex < Length(FCurrentLine))
+          and (Ord(FCurrentLine[1 + FCurrentLineIndex]) >= 256)
+          and not CharInSet(FCurrentLine[1 + FCurrentLineIndex], LDelimiters)) do
           Inc(FCurrentLineIndex)
     end
     else if (FCurrentRange.ClosingToken = FCurrentToken) then
@@ -2645,8 +2647,7 @@ begin
   end;
 
   if (FBeginningOfLine
-    and (FCurrentLine <> '')
-    and (FCurrentLineIndex >= 1)
+    and (FCurrentLineIndex > 0)
     and ((FCurrentLineIndex > Length(FCurrentLine)) or not CharInset(FCurrentLine[1 + FCurrentLineIndex - 1], BCEDITOR_ABSOLUTE_DELIMITERS))) then
     FBeginningOfLine := False;
 

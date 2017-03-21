@@ -538,20 +538,22 @@ end;
 function TBCEditorLines.CharIndexToPosition(const ACharIndex: Integer;
   const ARelativePosition: TBCEditorTextPosition): TBCEditorTextPosition;
 var
+  LCharIndex: Integer;
   LLength: Integer;
   LLineBreakLength: Integer;
 begin
   Assert((BOFTextPosition <= ARelativePosition) and (ARelativePosition <= EOFTextPosition) or (ACharIndex = 0) and (Count = 0));
+  LCharIndex := Max(0, ACharIndex);
 
   Result := ARelativePosition;
 
-  if (ACharIndex <= Length(Lines[Result.Line].Text) - (Result.Char - 1)) then
-    Inc(Result.Char, ACharIndex)
+  if ((Result.Char - 1) + LCharIndex <= Length(Lines[Result.Line].Text)) then
+    Inc(Result.Char, LCharIndex)
   else
   begin
     LLineBreakLength := Length(LineBreak);
 
-    LLength := ACharIndex - (Length(Lines[Result.Line].Text) - (Result.Char - 1)) - LLineBreakLength;
+    LLength := LCharIndex - (Length(Lines[Result.Line].Text) - (Result.Char - 1)) - LLineBreakLength;
     Inc(Result.Line);
 
     while ((Result.Line < Count) and (LLength >= Length(Lines[Result.Line].Text) + LLineBreakLength)) do
@@ -561,10 +563,12 @@ begin
     end;
 
     if (LLength > Length(Lines[Result.Line].Text)) then
-      raise ERangeError.CreateFmt(SBCEditorCharindexOutOfBounds, [ACharIndex, Length(Text)]);
+      raise ERangeError.CreateFmt(SBCEditorCharindexOutOfBounds, [LCharIndex, Length(Text)]);
 
     Result.Char := 1 + LLength;
   end;
+
+  Assert(Result <= EOFTextPosition, 'ACharIndex: ' + IntToStr(ACharIndex) + ', RelPos: ' + ARelativePosition.ToString() + ', Result: ' + Result.ToString());
 end;
 
 procedure TBCEditorLines.Clear();

@@ -2366,7 +2366,7 @@ var
   LPositionY: Integer;
   LPreviousFontStyles: TFontStyles;
   LRow: Integer;
-  LToken: string;
+  LTokenText: string;
   LTokenLength: Integer;
 begin
   LRow := ADisplayPosition.Row;
@@ -2403,9 +2403,9 @@ begin
   while not FHighlighter.GetEndOfLine do
   begin
     if LNextTokenText = '' then
-      FHighlighter.GetToken(LToken)
+      FHighlighter.GetToken(LTokenText)
     else
-      LToken := LNextTokenText;
+      LTokenText := LNextTokenText;
     LNextTokenText := '';
     LHighlighterAttribute := FHighlighter.GetTokenAttribute;
     if Assigned(LHighlighterAttribute) then
@@ -2416,19 +2416,19 @@ begin
       LPreviousFontStyles := LFontStyles;
     end;
 
-    LTokenLength := Length(LToken);
+    LTokenLength := Length(LTokenText);
 
     if FWordWrap.Enabled then
       if LCurrentRow < ADisplayPosition.Row then
         if LLength + LTokenLength > FWordWrapLineLengths[LCurrentRow] then
         begin
-          LNextTokenText := Copy(LToken, FWordWrapLineLengths[LCurrentRow] - LLength + 1, LTokenLength);
+          LNextTokenText := Copy(LTokenText, FWordWrapLineLengths[LCurrentRow] - LLength + 1, LTokenLength);
           LTokenLength := FWordWrapLineLengths[LCurrentRow] - LLength;
-          LToken := Copy(LToken, 1, LTokenLength);
+          LTokenText := Copy(LTokenText, 1, LTokenLength);
 
           Inc(LCurrentRow);
           LLength := 0;
-          Inc(LCharsBefore, GetTokenCharCount(LToken, LCharsBefore));
+          Inc(LCharsBefore, GetTokenCharCount(LTokenText, LCharsBefore));
           Continue;
         end;
 
@@ -2436,16 +2436,16 @@ begin
     begin
       if LLength + LTokenLength >= ADisplayPosition.Column then
       begin
-        Inc(Result.X, GetTokenWidth(LToken, ADisplayPosition.Column - LLength - 1, LCharsBefore));
+        Inc(Result.X, GetTokenWidth(LTokenText, ADisplayPosition.Column - LLength - 1, LCharsBefore));
         Inc(LLength, LTokenLength);
         Break;
       end;
 
-      Inc(Result.X, GetTokenWidth(LToken, Length(LToken), LCharsBefore));
+      Inc(Result.X, GetTokenWidth(LTokenText, Length(LTokenText), LCharsBefore));
     end;
 
     Inc(LLength, LTokenLength);
-    Inc(LCharsBefore, GetTokenCharCount(LToken, LCharsBefore));
+    Inc(LCharsBefore, GetTokenCharCount(LTokenText, LCharsBefore));
 
     FHighlighter.Next;
   end;
@@ -9547,32 +9547,17 @@ var
 
   procedure PaintLines;
   var
-    LCurrentRow: Integer;
-    LElement: string;
-    LFirstColumn: Integer;
-    LFoldRange: TBCEditorCodeFolding.TRanges.TRange;
     LFontStyles: TFontStyles;
-    LFromLineText: string;
     LHighlighterAttribute: TBCEditorHighlighter.TAttribute;
     LIsCustomBackgroundColor: Boolean;
-    LKeyword: string;
     LLastColumn: Integer;
-    LLine: Integer;
-    LLinePosition: Integer;
-    LNextTokenText: string;
-    LOpenTokenEndLen: Integer;
-    LOpenTokenEndPos: Integer;
     LSelectedText: string;
-    LTextCaretY: Integer;
-    LTextPosition: TBCEditorTextPosition;
     LTokenAddon: TBCEditorTokenAddon;
     LTokenAddonColor: TColor;
     LTokenLength: Integer;
     LTokenPosition: Integer;
     LTokenText: string;
-    LToLineText: string;
     LWordAtSelection: string;
-    LWordWrapTokenPosition: Integer;
 
     function GetWordAtSelection(var ASelectedText: string): string;
     var
@@ -9734,6 +9719,22 @@ var
       LIsLineSelected := not LIsSelectionInsideLine and (LLineSelectionStart > 0);
     end;
 
+  var
+    LCurrentRow: Integer;
+    LElement: string;
+    LFirstColumn: Integer;
+    LFoldRange: TBCEditorCodeFolding.TRanges.TRange;
+    LFromLineText: string;
+    LKeyword: string;
+    LLine: Integer;
+    LLinePosition: Integer;
+    LNextTokenText: string;
+    LOpenTokenEndLen: Integer;
+    LOpenTokenEndPos: Integer;
+    LTextCaretY: Integer;
+    LTextPosition: TBCEditorTextPosition;
+    LToLineText: string;
+    LWordWrapTokenPosition: Integer;
   begin
     LLineRect := AClipRect;
     if AMinimap then

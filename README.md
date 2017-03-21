@@ -1,6 +1,6 @@
 <h3>Description</h3>
 
-A syntax highlighting edit control for the RAD Studio (Delphi/C++ Builder) with code folding, completion proposal, matching pair, minimap, sync edit, multi-caret editing, word wrap, support for non-fixed-width fonts, etc. External highlighter and color scheme files are in JSON format and can be loaded at runtime.
+A syntax highlighting edit control for the RAD Studio (Delphi and C++ Builder VCL) with code folding, completion proposal, matching pair, minimap, sync edit, multi-caret editing, word wrap, support for non-fixed-width fonts, etc. External highlighter and color scheme files are in JSON format and can be loaded at runtime.
 
 <h3>Build requirements</h3>
 
@@ -25,6 +25,6 @@ A syntax highlighting edit control for the RAD Studio (Delphi/C++ Builder) with 
 
   * <a href="https://www.dropbox.com/s/h3yenr9re4hllci/BCEditor_Demo.zip?dl=1">BCEditor Demo</a>
 
-<h3>Screenshots</h3>
+<h3>Screenshot</h3>
 
 ![bceditor0](https://cloud.githubusercontent.com/assets/11475177/20067778/2e403442-a51f-11e6-8c3e-532ae48b7d72.png)
