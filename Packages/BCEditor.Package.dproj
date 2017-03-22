@@ -121,6 +121,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="BCEditor.Package.dcr"/>
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="vcl.dcp"/>
