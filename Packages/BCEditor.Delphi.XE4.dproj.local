@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject>
-	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.258,C:\Users\Nils\Documents\BCEditor\Debugger\uWMemo.pas=C:\Users\Nils\Documents\BCEditor\Packages\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.258,C:\Users\Nils\Documents\BCEditor\Debugger\uWMemo.dfm=C:\Users\Nils\Documents\BCEditor\Packages\Unit1.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.430,=C:\Users\Nils\Documents\BCEditor\Packages\Unit1.pas</Transaction>
-  </Transactions>
-</BorlandProject>

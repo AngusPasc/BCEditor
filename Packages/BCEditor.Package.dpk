@@ -1,12 +1,11 @@
-package BCEditor.Delphi.XE5;
+package BCEditor.Package;
 
-{$R *.res}
 {$R '..\Source\BCEditor.Register.dcr'}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO OFF}
+{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
@@ -21,11 +20,12 @@ package BCEditor.Delphi.XE5;
 {$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
-{$WRITEABLECONST ON}
+{$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
+{$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'BCEditor Components'}
+{$DESCRIPTION 'BCEditor components'}
 {$IMPLICITBUILD ON}
 
 requires
@@ -48,7 +48,7 @@ contains
   BCEditor.Editor.InternalImage in '..\Source\BCEditor.Editor.InternalImage.pas',
   BCEditor.Editor.KeyCommands in '..\Source\BCEditor.Editor.KeyCommands.pas',
   BCEditor.Editor.LeftMargin in '..\Source\BCEditor.Editor.LeftMargin.pas',
-	BCEditor.Editor.Marks in '..\Source\BCEditor.Editor.Marks.pas',
+  BCEditor.Editor.Marks in '..\Source\BCEditor.Editor.Marks.pas',
   BCEditor.Editor.MatchingPair in '..\Source\BCEditor.Editor.MatchingPair.pas',
   BCEditor.Editor.Minimap in '..\Source\BCEditor.Editor.Minimap.pas',
   BCEditor.Editor.PopupWindow in '..\Source\BCEditor.Editor.PopupWindow.pas',
@@ -77,6 +77,7 @@ contains
   BCEditor.PaintHelper in '..\Source\BCEditor.PaintHelper.pas',
   BCEditor.Types in '..\Source\BCEditor.Types.pas',
   BCEditor.Utils in '..\Source\BCEditor.Utils.pas',
-  JsonDataObjects in '..\Source\JsonDataObjects.pas';
+  JsonDataObjects in '..\Source\JsonDataObjects.pas',
+  uWMemo in '..\Debugger\uWMemo.pas' {WMemo};
 
 end.

@@ -234,6 +234,8 @@ type
     property SortOrder: TBCEditorSortOrder read FSortOrder write FSortOrder;
     property State: TState read FState;
     property TabWidth: Integer read FTabWidth write SetTabWidth;
+    property TextBetween[const ABeginPosition, AEndPosition: TBCEditorTextPosition]: string read GetTextBetween;
+    property TextBetweenColumn[const ABeginPosition, AEndPosition: TBCEditorTextPosition]: string read GetTextBetweenColumn;
     property UndoList: TUndoList read FUndoList;
   public
     function Add(const AText: string): Integer; override;
@@ -243,8 +245,6 @@ type
     destructor Destroy; override;
     procedure Insert(ALine: Integer; const AText: string); override;
     procedure SaveToStream(AStream: TStream; AEncoding: TEncoding = nil); override;
-    property TextBetween[const ABeginPosition, AEndPosition: TBCEditorTextPosition]: string read GetTextBetween;
-    property TextBetweenColumn[const ABeginPosition, AEndPosition: TBCEditorTextPosition]: string read GetTextBetweenColumn;
   end;
 
 const
@@ -255,9 +255,6 @@ implementation {***************************************************************}
 
 uses
   Math, StrUtils;
-
-resourcestring
-  SBCEditorCharindexOutOfBounds = 'Character index out of bounds (%d of %d characters)';
 
 function HasLineBreak(const Text: string): Boolean;
 var
@@ -563,7 +560,7 @@ begin
     end;
 
     if (LLength > Length(Lines[Result.Line].Text)) then
-      raise ERangeError.CreateFmt(SBCEditorCharindexOutOfBounds, [LCharIndex, Length(Text)]);
+      raise ERangeError.CreateFmt('Character index out of bounds (%d / %d, %d / %d)', [LCharIndex, Length(Text), LLength, Length(Lines[Result.Line].Text)]);
 
     Result.Char := 1 + LLength;
   end;

@@ -293,6 +293,7 @@ type
     function GetSelStart(): Integer;
     function GetSelText(): string;
     function GetText: string;
+    function GetTextBetween(ATextBeginPosition, ATextEndPosition: TBCEditorTextPosition): string;
     function GetTokenCharCount(const AToken: string; const ACharsBefore: Integer): Integer;
     function GetTokenWidth(const AToken: string; const ALength: Integer; const ACharsBefore: Integer): Integer;
     function GetUndoOptions(): TUndoOptions;
@@ -631,7 +632,6 @@ type
     function SelectedText(): string; deprecated 'Use SelText'; // 2017-03-16
     procedure Sort(const ASortOrder: TBCEditorSortOrder = soAsc; const ACaseSensitive: Boolean = False);
     function SplitTextIntoWords(AStringList: TStrings; const ACaseSensitive: Boolean): string;
-    function TextBetween(const ATextBeginPosition: TBCEditorTextPosition; const ATextEndPosition: TBCEditorTextPosition): string; deprecated 'Use Lines.TextBetween'; // 2017-03-17
     function TextCaretPosition(): TBCEditorTextPosition; deprecated 'Use CaretPos'; // 2017-02-12
     procedure ToggleSelectedCase(const ACase: TBCEditorCase = cNone);
     function TranslateKeyCode(const ACode: Word; const AShift: TShiftState; var AData: Pointer): TBCEditorCommand;
@@ -695,6 +695,7 @@ type
     property Tabs: TBCEditorTabs read FTabs write SetTabs;
     property TabStop default True;
     property Text: string read GetText write SetText;
+    property TextBetween[ATextBeginPosition, ATextEndPosition: TBCEditorTextPosition]: string read GetTextBetween;
     property TextEntryMode: TBCEditorTextEntryMode read FTextEntryMode write SetTextEntryMode default temInsert;
     property TokenInfo: TBCEditorTokenInfo read FTokenInfo write SetTokenInfo;
     property TopLine: Integer read FTopLine write SetTopLine;
@@ -2271,7 +2272,7 @@ begin
   else
     LNewCaretPosition := TextPosition(1, Lines.CaretPosition.Line);
   if (LNewCaretPosition <> Lines.CaretPosition) then
-    Lines.DeleteText(LNewCaretPosition, Lines.CaretPosition);
+    Lines.DeleteText(LNewCaretPosition, TextPosition(1 + Max(Lines.CaretPosition.Char - 1, Length(Lines[Lines.CaretPosition.Line])), Lines.CaretPosition.Line));
 end;
 
 procedure TCustomBCEditor.DeleteLine();
@@ -5654,6 +5655,14 @@ end;
 function TCustomBCEditor.GetText(): string;
 begin
   Result := Lines.Text;
+end;
+
+function TCustomBCEditor.GetTextBetween(ATextBeginPosition, ATextEndPosition: TBCEditorTextPosition): string;
+begin
+  if (Lines.SelMode = smNormal) then
+    Result := Lines.TextBetween[ATextBeginPosition, ATextEndPosition]
+  else
+    Result := Lines.TextBetweenColumn[ATextBeginPosition, ATextEndPosition];
 end;
 
 function TCustomBCEditor.GetTextPositionOfMouse(out ATextPosition: TBCEditorTextPosition): Boolean;
@@ -12501,11 +12510,6 @@ begin
   Invalidate;
 end;
 
-function TCustomBCEditor.TextBetween(const ATextBeginPosition: TBCEditorTextPosition; const ATextEndPosition: TBCEditorTextPosition): string;
-begin
-  Lines.TextBetween[ATextBeginPosition, ATextEndPosition];
-end;
-
 function TCustomBCEditor.TextCaretPosition(): TBCEditorTextPosition;
 begin
   Result := Lines.CaretPosition;
@@ -13595,14 +13599,12 @@ var
   LLinePos: PChar;
   LLineText: string;
 begin
-  Assert((BOFTextPosition <= ATextPosition) and (ATextPosition <= Lines.EOFTextPosition));
-
   LLineText := Lines[ATextPosition.Line];
   if (LLineText = '') then
     Result := Lines.EOLTextPosition[ATextPosition.Line]
   else
   begin
-    LLinePos := @LLineText[ATextPosition.Char];
+    LLinePos := @LLineText[1 + Max(ATextPosition.Char - 1, Length(Lines[ATextPosition.Line]))];
     LLineEndPos := @LLineText[Length(LLineText)];
     while ((LLinePos <= LLineEndPos) and IsWordChar(LLinePos^)) do
       Inc(LLinePos);

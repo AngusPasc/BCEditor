@@ -1,14 +1,14 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{76ABFE92-4308-45CA-9EA7-797C4A7E0735}</ProjectGuid>
+        <ProjectGuid>{FDB54465-D13F-4A09-B762-F707035B2A36}</ProjectGuid>
         <ProjectVersion>17.2</ProjectVersion>
-        <FrameworkType>VCL</FrameworkType>
-        <MainSource>BCEditor.CBuilder.XE8.cpp</MainSource>
+        <MainSource>BCEditor.Package.cpp</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <AppType>Library</AppType>
+        <FrameworkType>VCL</FrameworkType>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>3</TargetedPlatforms>
-        <AppType>Package</AppType>
+        <TargetedPlatforms>1</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -18,20 +18,9 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
-        <Base_Win64>true</Base_Win64>
-        <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
-        <Cfg_1_Win32>true</Cfg_1_Win32>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
@@ -39,42 +28,49 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <SanitizedProjectName>BCEditor_CBuilder_XE8</SanitizedProjectName>
-        <ILINK_GenerateImportLibrary>true</ILINK_GenerateImportLibrary>
-        <Multithreaded>true</Multithreaded>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Locale>1035</VerInfo_Locale>
-        <ProjectType>CppPackage</ProjectType>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
-        <ILINK_GenerateLibFile>true</ILINK_GenerateLibFile>
-        <_TCHARMapping>char</_TCHARMapping>
-        <ILINK_LibraryPath>..\Source\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-        <IncludePath>..\Source\;$(IncludePath)</IncludePath>
-        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+        <ILINK_LinkwithIntebaseTogo>false</ILINK_LinkwithIntebaseTogo>
         <DynamicRTL>true</DynamicRTL>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <ILINK_LinkwithSQL>false</ILINK_LinkwithSQL>
+        <ILINK_LinkwithSQLite>false</ILINK_LinkwithSQLite>
+        <ILINK_LinkwithZLib>false</ILINK_LinkwithZLib>
+        <ILINK_LinkwithRegEx>false</ILINK_LinkwithRegEx>
+        <ILINK_LinkwithIndy>false</ILINK_LinkwithIndy>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <ILINK_LinkwithMidas>false</ILINK_LinkwithMidas>
+        <ILINK_LibraryPath>..\Source\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_GenerateImportLibrary>true</ILINK_GenerateImportLibrary>
+        <ProjectType>CppPackage</ProjectType>
+        <SanitizedProjectName>BCEditor_Package</SanitizedProjectName>
+        <Multithreaded>true</Multithreaded>
+        <ILINK_GenerateLibFile>true</ILINK_GenerateLibFile>
+        <IncludePath>..\Source\;$(IncludePath)</IncludePath>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
+        <_TCHARMapping>wchar_t</_TCHARMapping>
+        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
         <UsePackages>true</UsePackages>
         <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
         <BCC_wpar>false</BCC_wpar>
         <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
         <BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
-        <TLIB_PageSize>64</TLIB_PageSize>
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
+        <TLIB_PageSize>64</TLIB_PageSize>
         <DCC_AdditionalSwitches> -LUDesignIde;dclstd</DCC_AdditionalSwitches>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <PackageImports>bcbie;dbrtl;rtl;vcl;vclactnband;vcldb;vclimg;vclx;xmlrtl;$(PackageImports)</PackageImports>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <PackageImports>adortl;appanalytics;bcbie;bcbsmp;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;EhLib220;emsclient;emsclientfiredac;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;soapmidas;soaprtl;soapserver;svn;tethering;vcl;vclactnband;vcldb;vcldsnap;vclFireDAC;vclie;vclimg;VCLRESTComponents;vclribbon;VclSmp;vcltouch;vclx;VirtualTreesR;xmlrtl;$(PackageImports)</PackageImports>
-        <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <PackageImports>adortl;appanalytics;bindcomp;bindcompdbx;bindcompfmx;bindcompvcl;bindengine;CloudService;CustomIPTransport;DataSnapClient;DataSnapCommon;DataSnapConnectors;DatasnapConnectorsFreePascal;DataSnapFireDAC;DataSnapIndy10ServerTransport;DataSnapNativeClient;DataSnapProviderClient;DataSnapServer;DataSnapServerMidas;dbexpress;dbrtl;dbxcds;DbxClientDriver;DbxCommonDriver;DBXDb2Driver;DBXFirebirdDriver;DBXInformixDriver;DBXInterBaseDriver;DBXMSSQLDriver;DBXMySQLDriver;DBXOdbcDriver;DBXOracleDriver;DBXSqliteDriver;DBXSybaseASADriver;DBXSybaseASEDriver;dsnap;dsnapcon;dsnapxml;emsclient;emsclientfiredac;FireDAC;FireDACADSDriver;FireDACASADriver;FireDACCommon;FireDACCommonDriver;FireDACDb2Driver;FireDACDBXDriver;FireDACDSDriver;FireDACIBDriver;FireDACInfxDriver;FireDACMSAccDriver;FireDACMSSQLDriver;FireDACMySQLDriver;FireDACODBCDriver;FireDACOracleDriver;FireDACPgDriver;FireDACSqliteDriver;FireDACTDataDriver;fmx;fmxase;fmxdae;fmxFireDAC;fmxobj;IndyCore;IndyIPClient;IndyIPCommon;IndyIPServer;IndyProtocols;IndySystem;inet;inetdb;inetdbxpress;RESTBackendComponents;RESTComponents;rtl;soapmidas;soaprtl;soapserver;tethering;vcl;vclactnband;vcldb;vcldsnap;vclFireDAC;vclie;vclimg;VCLRESTComponents;vclribbon;VclSmp;vcltouch;vclx;VirtualTreesR;xmlrtl;$(PackageImports)</PackageImports>
         <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
@@ -95,20 +91,21 @@
         <BCC_DisableFramePtrElimOpt>true</BCC_DisableFramePtrElimOpt>
         <BCC_DisableSpellChecking>true</BCC_DisableSpellChecking>
         <CLANG_UnwindTables>true</CLANG_UnwindTables>
+        <ILINK_LibraryPath>$(BDSLIB)\$(PLATFORM)\debug;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <_TCHARMapping>wchar_t</_TCHARMapping>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
-        <Defines>NDEBUG;$(Defines)</Defines>
         <TASM_Debugging>None</TASM_Debugging>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <ILINK_Description>BCEditor control suite</ILINK_Description>
+        <ILINK_LibraryPath>$(BDS)\lib\win32\release\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <Defines>NDEBUG;$(Defines)</Defines>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+    </PropertyGroup>
     <ItemGroup>
-        <CppCompile Include="BCEditor.CBuilder.XE8.cpp">
-            <BuildOrder>0</BuildOrder>
+        <CppCompile Include="BCEditor.Package.cpp">
+            <BuildOrder>1</BuildOrder>
         </CppCompile>
         <PackageImport Include="designide.bpi">
             <BuildOrder>6</BuildOrder>
@@ -117,82 +114,82 @@
             <BuildOrder>92</BuildOrder>
         </PackageImport>
         <PackageImport Include="rtl.bpi">
-            <BuildOrder>1</BuildOrder>
+            <BuildOrder>2</BuildOrder>
         </PackageImport>
         <PackageImport Include="vcl.bpi">
-            <BuildOrder>91</BuildOrder>
+            <BuildOrder>9</BuildOrder>
         </PackageImport>
         <PackageImport Include="vcldb.bpi">
             <BuildOrder>93</BuildOrder>
         </PackageImport>
         <DelphiCompile Include="..\Source\BCEditor.Consts.pas">
-            <BuildOrder>2</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.ActiveLine.pas">
             <BuildOrder>3</BuildOrder>
         </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.ActiveLine.pas">
+            <BuildOrder>4</BuildOrder>
+        </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.Caret.pas">
-            <BuildOrder>9</BuildOrder>
+            <BuildOrder>10</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.CodeFolding.pas">
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>16</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.CompletionProposal.PopupWindow.pas">
-            <BuildOrder>20</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.CompletionProposal.pas">
             <BuildOrder>21</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Glyph.pas">
-            <BuildOrder>25</BuildOrder>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.CompletionProposal.pas">
+            <BuildOrder>22</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.InternalImage.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Glyph.pas">
             <BuildOrder>26</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.KeyCommands.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.InternalImage.pas">
             <BuildOrder>27</BuildOrder>
         </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.KeyCommands.pas">
+            <BuildOrder>28</BuildOrder>
+        </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.LeftMargin.pas">
-            <BuildOrder>34</BuildOrder>
+            <BuildOrder>36</BuildOrder>
         </DelphiCompile>
 				<DelphiCompile Include="..\Source\BCEditor.Editor.Marks.pas">
-            <BuildOrder>5</BuildOrder>
+            <BuildOrder>6</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.MatchingPair.pas">
-            <BuildOrder>37</BuildOrder>
+            <BuildOrder>39</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.Minimap.pas">
-            <BuildOrder>40</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.PopupWindow.pas">
-            <BuildOrder>92</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.pas">
-            <BuildOrder>41</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Replace.pas">
             <BuildOrder>42</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.RightMargin.pas">
+        <DelphiCompile Include="..\Source\BCEditor.PopupWindow.pas">
+            <BuildOrder>94</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.pas">
+            <BuildOrder>43</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Replace.pas">
             <BuildOrder>44</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Scroll.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.RightMargin.pas">
             <BuildOrder>46</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.pas">
-            <BuildOrder>51</BuildOrder>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Scroll.pas">
+            <BuildOrder>48</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.Selection.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Search.pas">
             <BuildOrder>53</BuildOrder>
         </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.Selection.pas">
+            <BuildOrder>55</BuildOrder>
+        </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.SpecialChars.pas">
-            <BuildOrder>56</BuildOrder>
+            <BuildOrder>58</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.SyncEdit.pas">
-            <BuildOrder>57</BuildOrder>
+            <BuildOrder>59</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.Tabs.pas">
-            <BuildOrder>58</BuildOrder>
+            <BuildOrder>60</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.TokenInfo.pas">
             <BuildOrder>58</BuildOrder>
@@ -201,40 +198,28 @@
             <BuildOrder>58</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Editor.WordWrap.pas">
-            <BuildOrder>64</BuildOrder>
+            <BuildOrder>66</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Export.HTML.pas">
-            <BuildOrder>65</BuildOrder>
+            <BuildOrder>67</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Highlighter.pas">
-            <BuildOrder>70</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.KeyboardHandler.pas">
-            <BuildOrder>73</BuildOrder>
+            <BuildOrder>72</BuildOrder>
         </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Language.pas">
-            <BuildOrder>74</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Lines.pas">
-            <BuildOrder>75</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.MacroRecorder.pas">
             <BuildOrder>76</BuildOrder>
         </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Lines.pas">
+            <BuildOrder>77</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.MacroRecorder.pas">
+            <BuildOrder>78</BuildOrder>
+        </DelphiCompile>
         <DelphiCompile Include="..\Source\BCEditor.Print.pas">
-            <BuildOrder>79</BuildOrder>
+            <BuildOrder>81</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Print.Preview.pas">
-            <BuildOrder>80</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Search.pas">
-            <BuildOrder>83</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.StyleHooks.pas">
-            <BuildOrder>86</BuildOrder>
-        </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.PaintHelper.pas">
-            <BuildOrder>87</BuildOrder>
+        <DelphiCompile Include="..\Source\BCEditor.Print.Types.pas">
+            <BuildOrder>84</BuildOrder>
         </DelphiCompile>
         <ResFiles Include="..\source\BCEditor.Register.dcr">
             <BuildOrder>94</BuildOrder>
@@ -242,17 +227,26 @@
         <DelphiCompile Include="..\Source\BCEditor.Register.pas">
             <BuildOrder>95</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Types.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Search.pas">
+            <BuildOrder>85</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.StyleHooks.pas">
             <BuildOrder>88</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Utils.pas">
+        <DelphiCompile Include="..\Source\BCEditor.PaintHelper.pas">
             <BuildOrder>89</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\JsonDataObjects.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Types.pas">
             <BuildOrder>90</BuildOrder>
         </DelphiCompile>
-        <DelphiCompile Include="..\Source\BCEditor.Editor.CodeFolding.Hint.Form.pas">
+        <DelphiCompile Include="..\Source\BCEditor.Utils.pas">
             <BuildOrder>91</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\JsonDataObjects.pas">
+            <BuildOrder>92</BuildOrder>
+        </DelphiCompile>
+        <DelphiCompile Include="..\Source\BCEditor.Editor.CodeFolding.Hint.Form.pas">
+            <BuildOrder>93</BuildOrder>
         </DelphiCompile>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -266,43 +260,64 @@
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
     </ItemGroup>
+    <Import Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')" Project="$(BDS)\Bin\CodeGear.Cpp.Targets"/>
     <ProjectExtensions>
         <Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
         <Borland.ProjectType>CppPackage</Borland.ProjectType>
         <BorlandProject>
             <CPlusPlusBuilder.Personality>
+                <Source>
+                    <Source Name="MainSource">BCEditor.Package.cpp</Source>
+                </Source>
+                <VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+                    <VersionInfo Name="AutoIncBuild">False</VersionInfo>
+                    <VersionInfo Name="MajorVer">1</VersionInfo>
+                    <VersionInfo Name="MinorVer">0</VersionInfo>
+                    <VersionInfo Name="Release">0</VersionInfo>
+                    <VersionInfo Name="Build">0</VersionInfo>
+                    <VersionInfo Name="Debug">False</VersionInfo>
+                    <VersionInfo Name="PreRelease">False</VersionInfo>
+                    <VersionInfo Name="Special">False</VersionInfo>
+                    <VersionInfo Name="Private">False</VersionInfo>
+                    <VersionInfo Name="DLL">False</VersionInfo>
+                    <VersionInfo Name="Locale">1049</VersionInfo>
+                    <VersionInfo Name="CodePage">1251</VersionInfo>
+                </VersionInfo>
+                <VersionInfoKeys>
+                    <VersionInfoKeys Name="CompanyName"/>
+                    <VersionInfoKeys Name="FileDescription"/>
+                    <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="InternalName"/>
+                    <VersionInfoKeys Name="LegalCopyright"/>
+                    <VersionInfoKeys Name="LegalTrademarks"/>
+                    <VersionInfoKeys Name="OriginalFilename"/>
+                    <VersionInfoKeys Name="ProductName"/>
+                    <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="Comments"/>
+                </VersionInfoKeys>
                 <ProjectProperties>
                     <ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
                     <ProjectProperties Name="ManagePaths">True</ProjectProperties>
                     <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
                     <ProjectProperties Name="IndexFiles">False</ProjectProperties>
                 </ProjectProperties>
-                <Source>
-                    <Source Name="MainSource">BCEditor.CBuilder.XE8.cpp</Source>
-                </Source>
             </CPlusPlusBuilder.Personality>
-            <Deployment Version="1">
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+            </Platforms>
+            <Deployment>
                 <DeployFile Condition="'$(UsingDelphiRTL)'=='true'" LocalName="$(BDS)\bin64\borlndmm.dll" Class="DependencyModule">
                     <Platform Name="Win64">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin64\cc64220mt.dll" Class="DependencyModule">
+                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin64\cc64160mt.dll" Class="DependencyModule">
                     <Platform Name="Win64">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin\cc32220mt.dll" Class="DependencyModule">
-                    <Platform Name="Win32">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'!='true'" LocalName="$(BDS)\bin64\cc64220.dll" Class="DependencyModule">
-                    <Platform Name="Win64">
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'!='true'" LocalName="$(BDS)\bin\cc32220.dll" Class="DependencyModule">
+                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'=='true'" LocalName="$(BDS)\bin\cc32160mt.dll" Class="DependencyModule">
                     <Platform Name="Win32">
                         <Overwrite>true</Overwrite>
                     </Platform>
@@ -312,15 +327,19 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\16.0\BPL\BCEditor.CBuilder.XE8.tds" Configuration="Debug" Class="DebugSymbols">
+                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'!='true'" LocalName="$(BDS)\bin\cc32160.dll" Class="DependencyModule">
                     <Platform Name="Win32">
-                        <RemoteName>BCEditor_CBuilder_XE8.tds</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\16.0\BPL\BCEditor.CBuilder.XE8.bpl" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="C:\Users\Public\Documents\Embarcadero\Studio\15.0\BPL\BCEditor.Package.bpl" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>BCEditor_CBuilder_XE8.bpl</RemoteName>
+                        <RemoteName>BCEditor_Package.bpl</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile Condition="'$(DynamicRTL)'=='true' And '$(Multithreaded)'!='true'" LocalName="$(BDS)\bin64\cc64160.dll" Class="DependencyModule">
+                    <Platform Name="Win64">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -359,14 +378,9 @@
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
             </Deployment>
-            <Platforms>
-                <Platform value="Win32">True</Platform>
-                <Platform value="Win64">True</Platform>
-            </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
-    <Import Project="$(BDS)\Bin\CodeGear.Cpp.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')"/>
-    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
