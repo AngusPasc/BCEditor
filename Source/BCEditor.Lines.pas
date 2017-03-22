@@ -10,8 +10,8 @@ uses
 type
   TBCEditorLines = class(TStrings)
   protected type
-    TChangeEvent = procedure(ASender: TObject; const AIndex, ACount: Integer) of object;
-    TCompare = function(ALines: TBCEditorLines; AIndex1, AIndex2: Integer): Integer;
+    TChangeEvent = procedure(Sender: TObject; const Line: Integer) of object;
+    TCompare = function(Lines: TBCEditorLines; Line1, Line2: Integer): Integer;
 
     TLineState = (lsLoaded, lsModified, lsSaved);
 
@@ -101,7 +101,6 @@ type
     FCaseSensitive: Boolean;
     FCount: Integer;
     FEditor: TCustomControl;
-    FFirstUpdatedLine: Integer;
     FLines: TLines;
     FMaxLengthLine: Integer;
     FModified: Boolean;
@@ -115,7 +114,6 @@ type
     FOnCleared: TNotifyEvent;
     FOnDeleted: TChangeEvent;
     FOnInserted: TChangeEvent;
-    FOnModified: TNotifyEvent;
     FOnSelChange: TNotifyEvent;
     FOnUpdated: TChangeEvent;
     FOptions: TOptions;
@@ -128,7 +126,6 @@ type
     FState: TState;
     FTabWidth: Integer;
     FUndoList: TUndoList;
-    FUpdatedLineCount: Integer;
     function CalcExpandString(ALine: Integer): string;
     procedure DoDelete(ALine: Integer);
     procedure DoDeleteIndent(ABeginPosition, AEndPosition: TBCEditorTextPosition;
@@ -221,7 +218,6 @@ type
     property OnCleared: TNotifyEvent read FOnCleared write FOnCleared;
     property OnDeleted: TChangeEvent read FOnDeleted write FOnDeleted;
     property OnInserted: TChangeEvent read FOnInserted write FOnInserted;
-    property OnModified: TNotifyEvent read FOnModified write FOnModified;
     property OnSelChange: TNotifyEvent read FOnSelChange write FOnSelChange;
     property OnUpdated: TChangeEvent read FOnUpdated write FOnUpdated;
     property Options: TOptions read FOptions write SetOptions;
@@ -607,7 +603,6 @@ begin
   FOnCleared := nil;
   FOnDeleted := nil;
   FOnInserted := nil;
-  FOnModified := nil;
   FOnSelChange := nil;
   FOnUpdated := nil;
   FOptions := DefaultOptions;
@@ -902,15 +897,12 @@ begin
   end;
 
   if (UpdateCount > 0) then
-  begin
-    if ((FFirstUpdatedLine <= ALine) and (ALine < FFirstUpdatedLine + FUpdatedLineCount)) then
-      Dec(FUpdatedLineCount);
     Include(FState, lsTextChanged);
-  end;
+
   if ((Count = 0) and Assigned(OnCleared)) then
     OnCleared(Self)
   else if (Assigned(OnDeleted)) then
-    OnDeleted(Self, ALine, 1);
+    OnDeleted(Self, ALine);
 end;
 
 procedure TBCEditorLines.DoDeleteIndent(ABeginPosition, AEndPosition: TBCEditorTextPosition;
@@ -1051,21 +1043,22 @@ begin
   end;
 
   if (Assigned(OnInserted)) then
-    OnInserted(Self, ALine, 1);
+    OnInserted(Self, ALine);
 end;
 
 function TBCEditorLines.DoInsertText(APosition: TBCEditorTextPosition;
   const AText: string): TBCEditorTextPosition;
 var
-  FirstLineBreak: Boolean;
   LEndPos: PChar;
+  LEOL: Boolean;
   LLine: Integer;
   LLineBeginPos: PChar;
   LLineBreak: array [0..2] of Char;
   LLineEnd: string;
   LPos: PChar;
 begin
-  Assert((BOFTextPosition <= APosition) and ((APosition.Line < Count) or (APosition.Line = 0) and (Count = 0)));
+  Assert(BOFTextPosition <= APosition);
+  Assert((APosition.Line = 0) and (Count = 0) or (APosition.Line < Count) and (APosition.Char - 1 <= Length(Lines[APosition.Line].Text)));
 
   if (AText = '') then
     Result := APosition
@@ -1081,98 +1074,91 @@ begin
   end
   else
   begin
-    FirstLineBreak := True;
     LLineBreak[0] := #0; LLineBreak[1] := #0; LLineBreak[2] := #0;
 
     BeginUpdate();
 
     try
-      LPos := PChar(AText);
-      LEndPos := @AText[Length(AText)];
       LLine := APosition.Line;
-      if ((LLine < Count)
-        and (APosition.Char - 1 < Length(Lines[LLine].Text))) then
-      begin
-        LLineEnd := Copy(Lines[LLine].Text, APosition.Char, MaxInt);
-        DoPut(LLine, LeftStr(Lines[LLine].Text, APosition.Char - 1));
-      end
-      else
-        LLineEnd := '';
+
+      LPos := @AText[1];
+      LEndPos := @AText[Length(AText)];
 
       LLineBeginPos := LPos;
       while ((LPos <= LEndPos) and not CharInSet(LPos^, [BCEDITOR_LINEFEED, BCEDITOR_CARRIAGE_RETURN])) do
         Inc(LPos);
-      if (LPos > LLineBeginPos) then
+
+      if (LLine < Count) then
       begin
-        if (LLine = Count) then
-          DoInsert(LLine, LeftStr(AText, LPos - LLineBeginPos))
-        else
-          DoPut(LLine, LeftStr(Lines[LLine].Text, APosition.Char - 1) + LeftStr(AText, LPos - LLineBeginPos));
-      end
-      else if (LLine = Count) then
-        DoInsert(LLine, '');
-
-      while (LPos <= LEndPos) do
-        if (FirstLineBreak and (LPos^ = BCEDITOR_LINEFEED)) then
+        if (APosition.Char - 1 = 0) then
         begin
-          LLineBreak[0] := LPos^;
-          Inc(LPos);
-          Inc(LLine);
-          DoInsert(LLine, '');
-          FirstLineBreak := False;
-        end
-        else if (FirstLineBreak and (LPos^ = BCEDITOR_CARRIAGE_RETURN)) then
-        begin
-          LLineBreak[0] := LPos^;
-          Inc(LPos);
-          if (LPos^ = BCEDITOR_LINEFEED) then
-          begin
-            LLineBreak[1] := LPos^;
-            Inc(LPos);
-          end;
-          Inc(LLine);
-          DoInsert(LLine, '');
-          FirstLineBreak := False;
-        end
-        else if (not FirstLineBreak
-          and (((LPos^ = BCEDITOR_LINEFEED) and (LPos^ = LLineBreak[0]))
-            or ((LPos^ = BCEDITOR_CARRIAGE_RETURN) and (LLineBreak[0] = LPos^) and ((LLineBreak[1] = #0) or (LPos < LEndPos) and (LPos[1] = LLineBreak[1]))))) then
-        begin
-          Inc(LPos);
-          if (LLineBreak[1] <> #0) then
-            Inc(LPos);
-          Inc(LLine);
-          DoInsert(LLine, '');
-        end
-        else if (not (lsLoading in State) and (LPos^ = BCEDITOR_CARRIAGE_RETURN)) then
-        begin
-          Inc(LPos);
-          if (LPos^ = BCEDITOR_LINEFEED) then
-            Inc(LPos);
-          Inc(LLine);
-          DoInsert(LLine, '');
-          FirstLineBreak := False;
+          LLineEnd := Lines[LLine].Text;
+          if (LLineBeginPos < LPos) then
+            DoPut(LLine, LeftStr(AText, LPos - LLineBeginPos))
+          else if (Lines[LLine].Text <> '') then
+            DoPut(LLine, '');
         end
         else
         begin
-          LLineBeginPos := LPos;
-          while ((LPos <= LEndPos)
-            and (not CharInSet(LPos^, [BCEDITOR_LINEFEED, BCEDITOR_CARRIAGE_RETURN])
-              or (LPos^ <> LLineBreak[0])
-              or (LPos < LEndPos) and (LLineBreak[1] <> #0) and (LPos[1] <> LLineBreak[1]))) do
-            Inc(LPos);
-          if (LPos > LLineBeginPos) then
-            DoPut(LLine, Copy(AText, 1 + LLineBeginPos - @AText[1], LPos - LLineBeginPos));
+          LLineEnd := Copy(Lines[LLine].Text, APosition.Char, MaxInt);
+          if (LLineBeginPos < LPos) then
+            DoPut(LLine, LeftStr(Lines[LLine].Text, APosition.Char - 1) + LeftStr(AText, LPos - LLineBeginPos))
+          else if (Length(Lines[LLine].Text) > APosition.Char - 1) then
+            DoPut(LLine, LeftStr(Lines[LLine].Text, APosition.Char - 1));
         end;
+      end
+      else
+        DoInsert(LLine, LeftStr(AText, LPos - LLineBeginPos));
+      Inc(LLine);
 
-        Result := TextPosition(1 + Length(Lines[LLine].Text), LLine);
+      if (LPos <= LEndPos) then
+      begin
+        LLineBreak[0] := LPos^;
+        if ((LLineBreak[0] = BCEDITOR_CARRIAGE_RETURN) and (LPos < LEndPos) and (LPos[1] = BCEDITOR_LINEFEED)) then
+          LLineBreak[1] := LPos[1];
+      end;
 
-      if (LLineEnd <> '') then
-        DoPut(LLine, Lines[LLine].Text + LLineEnd);
+      LEOL := (LPos <= LEndPos) and (LPos[0] = LLineBreak[0]) and ((LLineBreak[1] = #0) or (LPos < LEndPos) and (LPos[1] = LLineBreak[1]));
+      while (LEOL) do
+      begin
+        if (LLineBreak[1] = #0) then
+          Inc(LPos)
+        else
+          Inc(LPos, 2);
+        LLineBeginPos := LPos;
+        repeat
+          LEOL := (LPos <= LEndPos) and (LPos[0] = LLineBreak[0]) and ((LLineBreak[1] = #0) or (LPos < LEndPos) and (LPos[1] = LLineBreak[1]));
+          if (not LEOL) then
+            Inc(LPos);
+        until ((LPos > LEndPos) or LEOL);
+        if (LEOL) then
+        begin
+          DoInsert(LLine, Copy(AText, 1 + LLineBeginPos - @AText[1], LPos - LLineBeginPos));
+          Inc(LLine);
+        end;
+      end;
+
+      if (LPos <= LEndPos) then
+      begin
+        if (LLine < Count) then
+          DoPut(LLine, Copy(AText, LPos - @AText[1], LEndPos + 1 - LPos) + LLineEnd)
+        else
+          DoInsert(LLine, Copy(AText, LPos - @AText[1], LEndPos + 1 - LPos) + LLineEnd);
+        Result := TextPosition(LEndPos + 1 - LLineBeginPos, LLine);
+      end
+      else
+      begin
+        if (LLine < Count) then
+          DoPut(LLine, RightStr(AText, LEndPos + 1 - LLineBeginPos) + LLineEnd)
+        else
+          DoInsert(LLine, RightStr(AText, LEndPos + 1 - LLineBeginPos) + LLineEnd);
+        Result := TextPosition(1 + LEndPos + 1 - LLineBeginPos, LLine);
+      end;
+
     finally
       EndUpdate();
 
-      if (not FirstLineBreak and (lsLoading in State)) then
+      if ((lsLoading in State) and (LLineBreak[0] <> #0)) then
         LineBreak := StrPas(PChar(@LLineBreak[0]));
     end;
   end;
@@ -1233,25 +1219,12 @@ begin
   end;
 
   if (LModified) then
+  begin
     if (UpdateCount > 0) then
-    begin
-      if (FFirstUpdatedLine < 0) then
-      begin
-        FFirstUpdatedLine := ALine;
-        FUpdatedLineCount := 1;
-      end
-      else if (ALine < FFirstUpdatedLine) then
-      begin
-        Inc(FUpdatedLineCount, FFirstUpdatedLine - ALine);
-        FFirstUpdatedLine := ALine;
-      end
-      else if (ALine > FFirstUpdatedLine + FUpdatedLineCount - 1) then
-        FUpdatedLineCount := ALine - FFirstUpdatedLine + 1;
-
       Include(FState, lsTextChanged);
-    end
-    else if (Assigned(OnUpdated)) then
-      OnUpdated(Self, ALine, 1);
+    if (Assigned(OnUpdated)) then
+      OnUpdated(Self, ALine);
+  end;
 end;
 
 procedure TBCEditorLines.ExchangeItems(ALine1, ALine2: Integer);
@@ -1986,29 +1959,22 @@ end;
 
 procedure TBCEditorLines.SetModified(const AValue: Boolean);
 var
-  LIndex: Integer;
-  LPLineAttribute: PLineAttribute;
+  LLine: Integer;
 begin
-  if FModified <> AValue then
+  if (FModified <> AValue) then
   begin
     FModified := AValue;
 
-    if AValue and Assigned(OnModified) then
-      OnModified(Self);
-
-    if (loUndoGrouped in Options) and (UndoList.Count > 0) and not AValue then
+    if (not FModified) then
+    begin
       UndoList.GroupBreak();
 
-    if not FModified then
-    begin
       BeginUpdate();
-      for LIndex := 0 to Count - 1 do
-      begin
-        LPLineAttribute := Attributes[LIndex];
-        if LPLineAttribute.LineState = lsModified then
-          LPLineAttribute.LineState := lsSaved;
-      end;
+      for LLine := 0 to Count - 1 do
+        if (Lines[LLine].Attribute.LineState = lsModified) then
+          Lines[LLine].Attribute.LineState := lsSaved;
       EndUpdate();
+      Editor.Invalidate();
     end;
   end;
 end;
@@ -2130,9 +2096,6 @@ procedure TBCEditorLines.SetUpdateState(AUpdating: Boolean);
 begin
   if (AUpdating) then
   begin
-    FFirstUpdatedLine := -1;
-    FUpdatedLineCount := 0;
-
     UndoList.BeginUpdate();
     FState := FState - [lsCaretMoved, lsSelChanged, lsTextChanged];
     FOldUndoListCount := UndoList.Count;
@@ -2159,8 +2122,6 @@ begin
 
     UndoList.EndUpdate();
 
-    if (Assigned(OnUpdated) and (FFirstUpdatedLine >= 0) and (FUpdatedLineCount > 0)) then
-      OnUpdated(Self, FFirstUpdatedLine, FUpdatedLineCount);
     if (Assigned(OnCaretMoved) and (lsCaretMoved in FState)) then
       OnCaretMoved(Self);
     if (Assigned(OnSelChange) and (lsSelChanged in FState)) then

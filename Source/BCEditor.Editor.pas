@@ -203,7 +203,7 @@ type
     procedure CodeFoldingExpand(AFoldRange: TBCEditorCodeFolding.TRanges.TRange);
     function CodeFoldingFoldRangeForLineTo(const ALine: Integer): TBCEditorCodeFolding.TRanges.TRange;
     function CodeFoldingLineInsideRange(const ALine: Integer): TBCEditorCodeFolding.TRanges.TRange;
-    procedure CodeFoldingLinesDeleted(const AFirstLine: Integer; const ACount: Integer);
+    procedure CodeFoldingLinesDeleted(const ALine: Integer);
     procedure CodeFoldingOnChange(AEvent: TBCEditorCodeFoldingChanges);
     function CodeFoldingRangeForLine(const ALine: Integer): TBCEditorCodeFolding.TRanges.TRange;
     procedure CodeFoldingResetCaches;
@@ -416,9 +416,9 @@ type
     procedure CaretMoved(ASender: TObject);
     procedure ChainLinesCaretChanged(ASender: TObject);
     procedure ChainLinesCleared(ASender: TObject);
-    procedure ChainLinesDeleted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
-    procedure ChainLinesInserted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
-    procedure ChainLinesUpdated(ASender: TObject; const AIndex: Integer; const ACount: Integer);
+    procedure ChainLinesDeleted(ASender: TObject; const ALine: Integer);
+    procedure ChainLinesInserted(ASender: TObject; const ALine: Integer);
+    procedure ChainLinesUpdated(ASender: TObject; const ALine: Integer);
     procedure ChangeScale(M, D: Integer); override;
     procedure ClearBookmarks;
     procedure ClearMarks;
@@ -480,10 +480,10 @@ type
     procedure LinesBeforeDeleted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
     procedure LinesBeforeInserted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
     procedure LinesCleared(ASender: TObject);
-    procedure LinesDeleted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
+    procedure LinesDeleted(ASender: TObject; const ALine: Integer);
     procedure LinesHookChanged;
-    procedure LinesInserted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
-    procedure LinesUpdated(ASender: TObject; const AIndex: Integer; const ACount: Integer); virtual;
+    procedure LinesInserted(ASender: TObject; const ALine: Integer);
+    procedure LinesUpdated(ASender: TObject; const ALine: Integer); virtual;
     procedure MarkListChange(ASender: TObject);
     procedure MouseDown(AButton: TMouseButton; AShift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(AShift: TShiftState; X, Y: Integer); override;
@@ -1428,25 +1428,25 @@ begin
   FOriginalLines.OnCleared(ASender);
 end;
 
-procedure TCustomBCEditor.ChainLinesDeleted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
+procedure TCustomBCEditor.ChainLinesDeleted(ASender: TObject; const ALine: Integer);
 begin
   if Assigned(FOnChainLinesDeleted) then
-    FOnChainLinesDeleted(ASender, AIndex, ACount);
-  FOriginalLines.OnDeleted(ASender, AIndex, ACount);
+    FOnChainLinesDeleted(ASender, ALine);
+  FOriginalLines.OnDeleted(ASender, ALine);
 end;
 
-procedure TCustomBCEditor.ChainLinesInserted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
+procedure TCustomBCEditor.ChainLinesInserted(ASender: TObject; const ALine: Integer);
 begin
   if Assigned(FOnChainLinesInserted) then
-    FOnChainLinesInserted(ASender, AIndex, ACount);
-  FOriginalLines.OnInserted(ASender, AIndex, ACount);
+    FOnChainLinesInserted(ASender, ALine);
+  FOriginalLines.OnInserted(ASender, ALine);
 end;
 
-procedure TCustomBCEditor.ChainLinesUpdated(ASender: TObject; const AIndex: Integer; const ACount: Integer);
+procedure TCustomBCEditor.ChainLinesUpdated(ASender: TObject; const ALine: Integer);
 begin
   if Assigned(FOnChainLinesUpdated) then
-    FOnChainLinesUpdated(ASender, AIndex, ACount);
-  FOriginalLines.OnUpdated(ASender, AIndex, ACount);
+    FOnChainLinesUpdated(ASender, ALine);
+  FOriginalLines.OnUpdated(ASender, ALine);
 end;
 
 procedure TCustomBCEditor.ChangeScale(M, D: Integer);
@@ -1595,22 +1595,15 @@ begin
     Result := FCodeFoldingRangeFromLine[LLine]
 end;
 
-procedure TCustomBCEditor.CodeFoldingLinesDeleted(const AFirstLine: Integer; const ACount: Integer);
+procedure TCustomBCEditor.CodeFoldingLinesDeleted(const ALine: Integer);
 var
   LCodeFoldingRange: TBCEditorCodeFolding.TRanges.TRange;
-  LIndex: Integer;
 begin
-  if ACount > 0 then
-  begin
-    for LIndex := AFirstLine + ACount - 1 downto AFirstLine do
-    begin
-      LCodeFoldingRange := CodeFoldingRangeForLine(LIndex);
-      if Assigned(LCodeFoldingRange) then
-        FAllCodeFoldingRanges.Delete(LCodeFoldingRange);
-    end;
-    UpdateFoldRanges(AFirstLine, -ACount);
-    LeftMarginChanged(Self);
-  end;
+  LCodeFoldingRange := CodeFoldingRangeForLine(ALine);
+  if Assigned(LCodeFoldingRange) then
+    FAllCodeFoldingRanges.Delete(LCodeFoldingRange);
+  UpdateFoldRanges(ALine, -1);
+  LeftMarginChanged(Self);
 end;
 
 procedure TCustomBCEditor.CodeFoldingOnChange(AEvent: TBCEditorCodeFoldingChanges);
@@ -6490,7 +6483,7 @@ begin
   end;
 end;
 
-procedure TCustomBCEditor.LinesDeleted(ASender: TObject; const AIndex, ACount: Integer);
+procedure TCustomBCEditor.LinesDeleted(ASender: TObject; const ALine: Integer);
 var
   LIndex: Integer;
 
@@ -6503,18 +6496,18 @@ var
     begin
       LMark := AMarkList[LMarkIndex];
       if LMark.Line >= LIndex then
-        LMark.Line := LMark.Line - ACount
+        LMark.Line := LMark.Line - 1;
     end;
   end;
 
 begin
-  LIndex := AIndex;
+  LIndex := ALine;
 
   UpdateMarks(FBookmarkList);
   UpdateMarks(FMarkList);
 
   if (FCodeFolding.Visible) then
-    CodeFoldingLinesDeleted(LIndex + 1, ACount);
+    CodeFoldingLinesDeleted(LIndex + 1);
 
   if (Assigned(FHighlighter) and (LIndex < Lines.Count)) then
   begin
@@ -6555,7 +6548,7 @@ begin
   Invalidate;
 end;
 
-procedure TCustomBCEditor.LinesInserted(ASender: TObject; const AIndex: Integer; const ACount: Integer);
+procedure TCustomBCEditor.LinesInserted(ASender: TObject; const ALine: Integer);
 var
   LLastScan: Integer;
 
@@ -6567,8 +6560,8 @@ var
     for LIndex := 0 to AMarkList.Count - 1 do
     begin
       LMark := AMarkList[LIndex];
-      if LMark.Line >= AIndex then
-        LMark.Line := LMark.Line + ACount;
+      if LMark.Line >= ALine then
+        LMark.Line := LMark.Line + 1;
     end;
   end;
 
@@ -6579,16 +6572,16 @@ begin
     UpdateMarks(FMarkList);
 
     if FCodeFolding.Visible then
-      UpdateFoldRanges(AIndex + 1, ACount);
+      UpdateFoldRanges(ALine + 1, 1);
   end;
 
   if (Assigned(FHighlighter)) then
   begin
-    LLastScan := AIndex;
+    LLastScan := ALine;
     repeat
       LLastScan := RescanHighlighterRangesFrom(LLastScan);
       Inc(LLastScan);
-    until LLastScan >= AIndex + ACount;
+    until LLastScan >= ALine + 1;
   end;
 
   CreateLineNumbersCache(True);
@@ -6615,7 +6608,7 @@ begin
   end;
 end;
 
-procedure TCustomBCEditor.LinesUpdated(ASender: TObject; const AIndex: Integer; const ACount: Integer);
+procedure TCustomBCEditor.LinesUpdated(ASender: TObject; const ALine: Integer);
 var
   LLastScan: Integer;
 begin
@@ -6627,11 +6620,11 @@ begin
 
   if Assigned(FHighlighter) and (Lines.Count > 0) then
   begin
-    LLastScan := AIndex;
+    LLastScan := ALine;
     repeat
       LLastScan := RescanHighlighterRangesFrom(LLastScan);
       Inc(LLastScan);
-    until LLastScan >= AIndex + ACount;
+    until LLastScan >= ALine + 1;
   end;
 
   Modified := True;
