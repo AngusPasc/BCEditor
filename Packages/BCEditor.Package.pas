@@ -1,15 +1,15 @@
-unit BCEditor.Register;
+unit BCEditor.Package;
 
-interface
+interface {********************************************************************}
 
 uses
   Classes,
   BCEditor.Editor, BCEditor.Print, BCEditor.Print.Preview, BCEditor.MacroRecorder,
   BCEditor.Editor.CompletionProposal, BCEditor.Editor.SyncEdit;
 
-procedure Register;
+procedure Register();
 
-implementation
+implementation {***************************************************************}
 
 uses
   DesignEditors, DesignIntf, StrEdit, VCLEditors;

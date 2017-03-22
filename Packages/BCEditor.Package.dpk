@@ -1,6 +1,6 @@
 package BCEditor.Package;
 
-{$R '..\Source\BCEditor.Register.dcr'}
+{$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
@@ -36,6 +36,7 @@ requires
   vcldb;
 
 contains
+  BCEditor.Package in 'BCEditor.Package.pas',
   BCEditor.Consts in '..\Source\BCEditor.Consts.pas',
   BCEditor.Editor in '..\Source\BCEditor.Editor.pas',
   BCEditor.Editor.ActiveLine in '..\Source\BCEditor.Editor.ActiveLine.pas',
@@ -71,13 +72,11 @@ contains
   BCEditor.MacroRecorder in '..\Source\BCEditor.MacroRecorder.pas',
   BCEditor.Print in '..\Source\BCEditor.Print.pas',
   BCEditor.Print.Preview in '..\Source\BCEditor.Print.Preview.pas',
-  BCEditor.Register in '..\Source\BCEditor.Register.pas',
   BCEditor.Search in '..\Source\BCEditor.Search.pas',
   BCEditor.StyleHooks in '..\Source\BCEditor.StyleHooks.pas',
   BCEditor.PaintHelper in '..\Source\BCEditor.PaintHelper.pas',
   BCEditor.Types in '..\Source\BCEditor.Types.pas',
   BCEditor.Utils in '..\Source\BCEditor.Utils.pas',
-  JsonDataObjects in '..\Source\JsonDataObjects.pas',
-  uWMemo in '..\Debugger\uWMemo.pas' {WMemo};
+  JsonDataObjects in '..\Source\JsonDataObjects.pas';
 
 end.
