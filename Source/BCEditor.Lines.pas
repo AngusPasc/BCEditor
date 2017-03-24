@@ -32,6 +32,7 @@ type
       ExpandedLength: Integer;
       Flags: set of (sfHasTabs, sfHasNoTabs);
       Range: TRange;
+      FirstRow: Integer;
       Text: string;
     end;
     TLines = array of TLine;
@@ -148,13 +149,15 @@ type
     function GetExpandedString(ALine: Integer): string;
     function GetExpandedStringLength(ALine: Integer): Integer;
     function GetMaxLength(): Integer;
+    function GetFirstRow(ALine: Integer): Integer; inline;
     function GetRange(ALine: Integer): TRange;
     function GetTextBetween(const ABeginPosition, AEndPosition: TBCEditorTextPosition): string; overload;
     function GetTextBetweenColumn(const ABeginPosition, AEndPosition: TBCEditorTextPosition): string; overload;
     procedure Grow();
     procedure InternalClear(const AClearUndo: Boolean); overload;
     procedure PutAttributes(ALine: Integer; const AValue: PLineAttribute);
-    procedure PutRange(ALine: Integer; ARange: TRange);
+    procedure PutRange(ALine: Integer; ARange: TRange); inline;
+    procedure PutFirstRow(ALine: Integer; const ARow: Integer); inline;
     procedure SetCaretPosition(const AValue: TBCEditorTextPosition);
     procedure SetModified(const AValue: Boolean);
     procedure SetOptions(const AValue: TOptions);
@@ -186,8 +189,8 @@ type
     function InsertText(APosition: TBCEditorTextPosition;
       const AText: string): TBCEditorTextPosition; overload;
     function IsPositionInSelection(const APosition: TBCEditorTextPosition): Boolean;
-    procedure Put(ALine: Integer; const AText: string); override;
     function PositionToCharIndex(const APosition: TBCEditorTextPosition): Integer;
+    procedure Put(ALine: Integer; const AText: string); override;
     procedure Redo(); inline;
     function ReplaceText(ABeginPosition, AEndPosition: TBCEditorTextPosition;
       const AText: string): TBCEditorTextPosition;
@@ -208,7 +211,8 @@ type
     property EOFTextPosition: TBCEditorTextPosition read GetEOFPosition;
     property EOLTextPosition[ALine: Integer]: TBCEditorTextPosition read GetEOLTextPosition;
     property ExpandedStringLengths[ALine: Integer]: Integer read GetExpandedStringLength;
-    property ExpandedStrings[ALine: Integer]: string read GetExpandedString;
+    property ExpandedStrings[Line: Integer]: string read GetExpandedString;
+    property FirstRow[Line: Integer]: Integer read GetFirstRow write PutFirstRow;
     property Lines: TLines read FLines;
     property MaxLength: Integer read GetMaxLength;
     property Modified: Boolean read FModified write SetModified;
@@ -221,7 +225,7 @@ type
     property OnSelChange: TNotifyEvent read FOnSelChange write FOnSelChange;
     property OnUpdated: TChangeEvent read FOnUpdated write FOnUpdated;
     property Options: TOptions read FOptions write SetOptions;
-    property Ranges[ALine: Integer]: TRange read GetRange write PutRange;
+    property Ranges[Line: Integer]: TRange read GetRange write PutRange;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
     property RedoList: TUndoList read FRedoList;
     property SelBeginPosition: TBCEditorTextPosition read FSelBeginPosition write SetSelBeginPosition;
@@ -230,8 +234,8 @@ type
     property SortOrder: TBCEditorSortOrder read FSortOrder write FSortOrder;
     property State: TState read FState;
     property TabWidth: Integer read FTabWidth write SetTabWidth;
-    property TextBetween[const ABeginPosition, AEndPosition: TBCEditorTextPosition]: string read GetTextBetween;
-    property TextBetweenColumn[const ABeginPosition, AEndPosition: TBCEditorTextPosition]: string read GetTextBetweenColumn;
+    property TextBetween[const BeginPosition, EndPosition: TBCEditorTextPosition]: string read GetTextBetween;
+    property TextBetweenColumn[const BeginPosition, EndPosition: TBCEditorTextPosition]: string read GetTextBetweenColumn;
     property UndoList: TUndoList read FUndoList;
   public
     function Add(const AText: string): Integer; override;
@@ -877,7 +881,7 @@ begin
   if (ALine < FCount) then
   begin
     Finalize(Lines[ALine]);
-    System.Move(Lines[ALine + 1], Lines[ALine], (FCount - ALine) * SizeOf(TLine));
+    System.Move(Lines[ALine + 1], Lines[ALine], (FCount - ALine) * SizeOf(Lines[0]));
     FillChar(Lines[FCount], SizeOf(Lines[FCount]), 0);
   end;
 
@@ -1010,13 +1014,14 @@ begin
     Grow();
 
   if (ALine < FCount) then
-    System.Move(Lines[ALine], Lines[ALine + 1], (FCount - ALine) * SizeOf(TLine));
+    System.Move(Lines[ALine], Lines[ALine + 1], (FCount - ALine) * SizeOf(Lines[0]));
   Inc(FCount);
 
   Lines[ALine].Attribute.Foreground := clNone;
   Lines[ALine].Attribute.Background := clNone;
   Lines[ALine].Attribute.LineState := lsModified;
   Lines[ALine].ExpandedLength := -1;
+  Lines[ALine].FirstRow := -1;
   Lines[ALine].Flags := [sfHasTabs, sfHasNoTabs];
   Lines[ALine].Range := nil;
   Pointer(Lines[ALine].Text) := nil;
@@ -1435,10 +1440,15 @@ function TBCEditorLines.GetExpandedString(ALine: Integer): string;
 begin
   if ((ALine = 0) and (Count = 0)) then
     Result := ''
-  else if (sfHasNoTabs in Lines[ALine].Flags) then
-    Result := Lines[ALine].Text
   else
-    Result := CalcExpandString(ALine);
+  begin
+    Assert((0 <= ALine) and (ALine < Count));
+
+    if (sfHasNoTabs in Lines[ALine].Flags) then
+      Result := Lines[ALine].Text
+    else
+      Result := CalcExpandString(ALine);
+  end;
 end;
 
 function TBCEditorLines.GetExpandedStringLength(ALine: Integer): Integer;
@@ -1447,6 +1457,8 @@ begin
     Result := 0
   else
   begin
+    Assert((0 <= ALine) and (ALine < Count));
+
     if (Lines[ALine].ExpandedLength >= 0) then
       Lines[ALine].ExpandedLength := Length(ExpandedStrings[ALine]);
     Result := Lines[ALine].ExpandedLength;
@@ -1483,6 +1495,18 @@ begin
     Result := 0
   else
     Result := Lines[FMaxLengthLine].ExpandedLength;
+end;
+
+function TBCEditorLines.GetFirstRow(ALine: Integer): Integer;
+begin
+  if ((ALine = 0) and (Count = 0)) then
+    Result := 0
+  else
+  begin
+    Assert((0 <= ALine) and (ALine < Count));
+
+    Result := Lines[ALine].FirstRow;
+  end;
 end;
 
 function TBCEditorLines.GetRange(ALine: Integer): TRange;
@@ -1838,6 +1862,13 @@ begin
   Assert((0 <= ALine) and (ALine < Count));
 
   Lines[ALine].Attribute := AValue^;
+end;
+
+procedure TBCEditorLines.PutFirstRow(ALine: Integer; const ARow: Integer);
+begin
+  Assert((0 <= ALine) and (ALine < Count));
+
+  Lines[ALine].FirstRow := ARow;
 end;
 
 procedure TBCEditorLines.PutRange(ALine: Integer; ARange: TRange);
