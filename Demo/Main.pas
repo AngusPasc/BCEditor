@@ -79,7 +79,7 @@ begin
   with ListBoxHighlighters do
     if (ItemIndex >= 0) then
       Editor.Highlighter.LoadFromFile(HighlighterPath + Items[ItemIndex]);
-  Editor.Lines.Text := Editor.Highlighter.Info.General.Sample;
+  Editor.Lines.Text := Editor.Highlighter.Sample;
 end;
 
 procedure TMainForm.ListBoxColorsClick(Sender: TObject);

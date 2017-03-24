@@ -451,7 +451,7 @@ end;
 
 procedure TBCEditorLeftMargin.TLineNumbers.SetDigitCount(AValue: Integer);
 begin
-  AValue := MinMax(AValue, 1, 12);
+  AValue := MinMax(AValue, 2, 12);
   if FDigitCount <> AValue then
   begin
     FDigitCount := AValue;

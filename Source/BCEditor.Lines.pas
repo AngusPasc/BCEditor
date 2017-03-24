@@ -1145,18 +1145,12 @@ begin
 
       if (LPos <= LEndPos) then
       begin
-        if (LLine < Count) then
-          DoPut(LLine, Copy(AText, LPos - @AText[1], LEndPos + 1 - LPos) + LLineEnd)
-        else
-          DoInsert(LLine, Copy(AText, LPos - @AText[1], LEndPos + 1 - LPos) + LLineEnd);
+        DoInsert(LLine, Copy(AText, LPos - @AText[1], LEndPos + 1 - LPos) + LLineEnd);
         Result := TextPosition(LEndPos + 1 - LLineBeginPos, LLine);
       end
       else
       begin
-        if (LLine < Count) then
-          DoPut(LLine, RightStr(AText, LEndPos + 1 - LLineBeginPos) + LLineEnd)
-        else
-          DoInsert(LLine, RightStr(AText, LEndPos + 1 - LLineBeginPos) + LLineEnd);
+        DoInsert(LLine, RightStr(AText, LEndPos + 1 - LLineBeginPos) + LLineEnd);
         Result := TextPosition(1 + LEndPos + 1 - LLineBeginPos, LLine);
       end;
 

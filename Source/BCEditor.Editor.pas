@@ -223,6 +223,7 @@ type
     FWantReturns: Boolean;
     FWindowProducedMessage: Boolean;
     FWordWrap: TBCEditorWordWrap;
+    FWordWrapIndicator: TBitmap;
     procedure ActiveLineChanged(ASender: TObject);
     procedure AfterLinesLoad(ASender: TObject);
     procedure AssignSearchEngine(const AEngine: TBCEditorSearchEngine);
@@ -331,7 +332,7 @@ type
     function GetTokenWidth(const AToken: string; const ALength: Integer; const ACharsBefore: Integer): Integer;
     function GetUndoOptions(): TUndoOptions;
     function GetVisibleChars(const ARow: Integer; const ALineText: string = ''): Integer;
-    function GetWordAt(ATextPos: TPoint): string;
+    function GetWordAt(ATextPos: TPoint): string; inline;
     function GetWordAtTextPosition(const ATextPosition: TBCEditorTextPosition): string;
     procedure InitCodeFolding;
     procedure InsertLine();
@@ -463,6 +464,7 @@ type
     procedure ClearUndo;
     function CreateLines(): BCEditor.Lines.TBCEditorLines;
     procedure CreateParams(var AParams: TCreateParams); override;
+    procedure CreateWindowHandle(const Params: TCreateParams); override;
     procedure CreateWnd; override;
     procedure DblClick; override;
     function DeleteBookmark(const ALine: Integer; const AIndex: Integer): Boolean; overload;
@@ -1057,6 +1059,7 @@ begin
   ControlStyle := ControlStyle + [csOpaque, csSetCaption, csNeedsBorderPaint];
 
   FBackgroundColor := clWindow;
+  FSearchFindFirst := True;
   FForegroundColor := clWindowText;
   FBorderStyle := bsSingle;
   FDoubleClickTime := GetDoubleClickTime;
@@ -1178,6 +1181,7 @@ begin
   { Word wrap }
   FWordWrap := TBCEditorWordWrap.Create;
   FWordWrap.OnChange := WordWrapChanged;
+  FWordWrapIndicator := TBitmap.Create();
   { Sync edit }
   FSyncEdit := TBCEditorSyncEdit.Create;
   FSyncEdit.OnChange := SyncEditChanged;
@@ -1228,6 +1232,7 @@ begin
   FLeftMargin := nil; { Notification has a check }
   FMinimap.Free;
   FWordWrap.Free;
+  FWordWrapIndicator.Free();
   FPaintHelper.Free;
   FInternalBookmarkImage.Free;
   FFontDummy.Free;
@@ -2104,6 +2109,13 @@ begin
   end;
 end;
 
+procedure TCustomBCEditor.CreateWindowHandle(const Params: TCreateParams);
+begin
+  inherited;
+
+  FontChanged(nil);
+end;
+
 procedure TCustomBCEditor.CreateWnd;
 begin
   inherited;
@@ -2152,7 +2164,7 @@ begin
     else
       Dec(LTextLinesRight, FSearch.Map.Width);
 
-  if (LClient.X >= LTextLinesLeft) and (LClient.X < LTextLinesRight) then
+  if ((LTextLinesLeft <= LClient.X) and (LClient.X < LTextLinesRight)) then
   begin
     SetWordBlock(Lines.CaretPosition);
     inherited;
@@ -4099,8 +4111,11 @@ procedure TCustomBCEditor.DoWordRight(const ACommand: TBCEditorCommand);
 var
   LCaretNewPosition: TBCEditorTextPosition;
 begin
-  LCaretNewPosition := WordEnd();
-  if (LCaretNewPosition = Lines.CaretPosition) then
+  LCaretNewPosition := Lines.CaretPosition;
+  if ((LCaretNewPosition.Char - 1 < Length(Lines[LCaretNewPosition.Line]))
+    and IsWordChar(Lines[LCaretNewPosition.Line][LCaretNewPosition.Char])) then
+    LCaretNewPosition := WordEnd();
+  if (LCaretNewPosition <= Lines.CaretPosition) then
     LCaretNewPosition := NextWordPosition();
   MoveCaretAndSelection(Lines.CaretPosition, LCaretNewPosition, ACommand = ecSelectionWordRight);
 end;
@@ -4391,25 +4406,25 @@ function TCustomBCEditor.ExecuteAction(Action: TBasicAction): Boolean;
 begin
   Result := True;
 
-  if Action is TEditCut then
+  if (Action is TEditCut) then
     ExecuteCommand(ecCut, #0, nil)
-  else if Action is TEditCopy then
+  else if (Action is TEditCopy) then
     ExecuteCommand(ecCopy, #0, nil)
-  else if Action is TEditPaste then
+  else if (Action is TEditPaste) then
     ExecuteCommand(ecPaste, #0, nil)
-  else if Action is TEditDelete then
+  else if (Action is TEditDelete) then
     ExecuteCommand(ecBackspace, #0, nil)
-  else if Action is TEditSelectAll then
+  else if (Action is TEditSelectAll) then
     ExecuteCommand(ecSelectAll, #0, nil)
-  else if Action is TEditUndo then
+  else if (Action is TEditUndo) then
     ExecuteCommand(ecUndo, #0, nil)
-  else if Action is TSearchFindFirst then
+  else if (Action is TSearchFindFirst) then
     DoSearchFind(True, TSearchFindFirst(Action))
-  else if Action is TSearchFind then
-    DoSearchFind(False, TSearchFind(Action))
-  else if Action is TSearchReplace then
+  else if (Action is TSearchFind) then
+    DoSearchFind(Search.SearchText = '', TSearchFind(Action))
+  else if (Action is TSearchReplace) then
     DoSearchReplace(TSearchReplace(Action))
-  else if Action is TSearchFindNext then
+  else if (Action is TSearchFindNext) then
     ExecuteCommand(ecSearchNext, #0, nil)
   else
     Result := inherited;
@@ -4904,6 +4919,36 @@ end;
 
 procedure TCustomBCEditor.FontChanged(ASender: TObject);
 begin
+  if (HandleAllocated) then
+    with FWordWrapIndicator do
+    begin
+      Handle := CreateCompatibleBitmap(Self.Canvas.Handle, 2 * FLeftMarginCharWidth, GetLineHeight());
+      Canvas.Font := Canvas.Font;
+      Canvas.Brush := Canvas.Brush;
+      Canvas.Pen := Canvas.Pen;
+      Canvas.Brush.Color := LeftMargin.Colors.Background;
+      Canvas.Pen.Color := LeftMargin.Font.Color;
+      Canvas.FillRect(Rect(0, 0, FWordWrapIndicator.Width, FWordWrapIndicator.Height));
+      Canvas.MoveTo(6, 4);
+      Canvas.LineTo(13, 4);
+      Canvas.MoveTo(13, 5);
+      Canvas.LineTo(13, 9);
+      Canvas.MoveTo(12, 9);
+      Canvas.LineTo(7, 9);
+      Canvas.MoveTo(10, 7);
+      Canvas.LineTo(10, 12);
+      Canvas.MoveTo(9, 8);
+      Canvas.LineTo(9, 11);
+      Canvas.MoveTo(2, 6);
+      Canvas.LineTo(7, 6);
+      Canvas.MoveTo(2, 8);
+      Canvas.LineTo(5, 8);
+      Canvas.MoveTo(2, 10);
+      Canvas.LineTo(5, 10);
+      Canvas.MoveTo(2, 12);
+      Canvas.LineTo(7, 12);
+    end;
+
   SizeOrFontChanged(True);
 end;
 
@@ -5756,7 +5801,7 @@ end;
 
 function TCustomBCEditor.GetWordAt(ATextPos: TPoint): string;
 begin
-  GetWordAtTextPosition(TextPosition(ATextPos));
+  Result := GetWordAtTextPosition(TextPosition(ATextPos));
 end;
 
 function TCustomBCEditor.GetWordAtPixels(const X, Y: Integer): string;
@@ -5766,36 +5811,39 @@ end;
 
 function TCustomBCEditor.GetWordAtTextPosition(const ATextPosition: TBCEditorTextPosition): string;
 var
-  LChar: Integer;
-  LLength: Integer;
-  LTextLine: string;
-  LTextPosition: TBCEditorTextPosition;
+  LLineTextLength: Integer;
+  LLineText: string;
+  LWordBeginChar: Integer;
+  LWordEndChar: Integer;
 begin
   Result := '';
-  LTextPosition := ATextPosition;
-  if (LTextPosition.Line >= 0) and (LTextPosition.Line < Lines.Count) then
+
+  if ((0 <= ATextPosition.Line) and (ATextPosition.Line < Lines.Count)) then
   begin
-    LTextLine := Lines[LTextPosition.Line];
-    LLength := Length(LTextLine);
-    if LLength = 0 then
-      Exit;
-    if (LTextPosition.Char >= 1) and (LTextPosition.Char <= LLength) and
-      not IsWordBreakChar(LTextLine[LTextPosition.Char]) then
+    LLineText := Lines[ATextPosition.Line];
+    LLineTextLength := Length(LLineText);
+    if ((1 <= ATextPosition.Char) and (ATextPosition.Char <= LLineTextLength))
+      and not IsWordBreakChar(LLineText[ATextPosition.Char]) then
     begin
-      LChar := LTextPosition.Char;
+      LWordBeginChar := ATextPosition.Char;
+      while ((LWordBeginChar - 1 > 0) and not IsWordBreakChar(LLineText[LWordBeginChar - 1])) do
+        Dec(LWordBeginChar);
+      if (soExpandRealNumbers in FSelection.Options) then
+        while ((LWordBeginChar - 1 > 0)
+          and (LLineText[LWordBeginChar - 1].IsNumber
+            or CharInSet(LLineText[LWordBeginChar - 1], BCEDITOR_REAL_NUMBER_CHARS))) do
+          Dec(LWordBeginChar);
 
-      while (LChar <= LLength) and not IsWordBreakChar(LTextLine[LChar]) do
-        Inc(LChar);
-      while (LTextPosition.Char > 1) and not IsWordBreakChar(LTextLine[LTextPosition.Char - 1]) do
-        Dec(LTextPosition.Char);
+      LWordEndChar := ATextPosition.Char;
+      while ((LWordEndChar - 1 < LLineTextLength) and not IsWordBreakChar(LLineText[LWordEndChar + 1])) do
+        Inc(LWordEndChar);
+      if (soExpandRealNumbers in FSelection.Options) then
+        while ((LWordEndChar - 1 < LLineTextLength)
+          and (LLineText[LWordEndChar + 1].IsNumber
+            or CharInSet(LLineText[LWordEndChar + 1], BCEDITOR_REAL_NUMBER_CHARS))) do
+          Inc(LWordEndChar);
 
-      if soExpandRealNumbers in FSelection.Options then
-        while (LTextPosition.Char > 0) and (LTextLine[LTextPosition.Char - 1].IsNumber or
-          CharInSet(LTextLine[LTextPosition.Char - 1], BCEDITOR_REAL_NUMBER_CHARS)) do
-          Dec(LTextPosition.Char);
-
-      if LChar > LTextPosition.Char then
-        Result := Copy(LTextLine, LTextPosition.Char, LChar - LTextPosition.Char);
+      Result := Copy(LLineText, LWordBeginChar, LWordEndChar - LWordBeginChar + 1);
     end;
   end;
 end;
@@ -5961,7 +6009,7 @@ begin
       LRow := (LLeftRow + LRightRow) div 2;
       case (Sign(FRows[LRow].Line - ALine)) of
         -1: begin LLeftRow := LRow + 1; Inc(LRow); end;
-        0: Exit; // Line is already in Rows
+        0: break;
         1: begin LRightRow := LRow - 1; Dec(LRow); end;
       end;
     end;
@@ -6376,8 +6424,9 @@ end;
 
 function TCustomBCEditor.IsWordBreakChar(const AChar: Char): Boolean;
 begin
-  Result := CharInSet(AChar, [BCEDITOR_NONE_CHAR .. BCEDITOR_SPACE_CHAR] + BCEDITOR_WORD_BREAK_CHARACTERS +
-    BCEDITOR_EXTRA_WORD_BREAK_CHARACTERS);
+  Result := CharInSet(AChar, [BCEDITOR_NONE_CHAR .. BCEDITOR_SPACE_CHAR]
+    + BCEDITOR_WORD_BREAK_CHARACTERS
+    + BCEDITOR_EXTRA_WORD_BREAK_CHARACTERS);
 end;
 
 function TCustomBCEditor.IsWordChar(const AChar: Char): Boolean;
@@ -7473,24 +7522,24 @@ begin
   LLineText := Lines[Result.Line];
   LLineTextLength := Length(LLineText);
 
-  Result := TextPosition(Max(Result.Char, 1 + Length(LLineText)), ATextPosition.Line);
+  Result := TextPosition(Min(Result.Char, 1 + Length(LLineText)), ATextPosition.Line);
 
   if (Result.Char - 1 < LLineTextLength) then
   begin
-    LLineEndPos := @LLineText[1 + LLineTextLength];
     LLinePos := @LLineText[Result.Char];
-    while ((LLinePos < LLineEndPos) and IsWordBreakChar(LLinePos^)) do
+    LLineEndPos := @LLineText[LLineTextLength];
+    while ((LLinePos <= LLineEndPos) and IsWordBreakChar(LLinePos^)) do
       Inc(LLinePos);
-    Result.Char := 1 + LLinePos - LLineEndPos;
+    Result.Char := 1 + LLineEndPos - LLinePos;
   end;
 
   if (Result.Char - 1 < LLineTextLength) then
   begin
-    LLineEndPos := @LLineText[1 + LLineTextLength];
     LLinePos := @LLineText[Result.Char];
-    while ((LLinePos < LLineEndPos) and not IsWordBreakChar(LLinePos^)) do
+    LLineEndPos := @LLineText[LLineTextLength];
+    while ((LLinePos <= LLineEndPos) and not IsWordBreakChar(LLinePos^)) do
       Inc(LLinePos);
-    Result.Char := 1 + LLinePos - LLineEndPos;
+    Result.Char := 1 + LLineEndPos - LLinePos;
   end
   else if (Result.Line < Lines.Count - 1) then
     Result := Lines.BOLTextPosition[Result.Line + 1]
@@ -7652,7 +7701,7 @@ begin
       if FCaret.NonBlinking.Enabled or Assigned(FMultiCarets) and (FMultiCarets.Count > 0) and FDrawMultiCarets then
         DrawCaret;
 
-      if not Assigned(FCompletionProposalPopupWindow) and FCaret.MultiEdit.Enabled and (FMultiCaretPosition.Row <> -1) then
+      if not Assigned(FCompletionProposalPopupWindow) and FCaret.MultiEdit.Enabled and (FMultiCaretPosition.Row > 0) then
         PaintCaretBlock(FMultiCaretPosition);
 
       if FRightMargin.Moving then
@@ -8298,63 +8347,74 @@ var
 
       for LIndex := AFirstLine to LLastTextLine do
       begin
-        LLine := DisplayRowToTextLine(LIndex);
-
         LLineRect.Top := (LIndex - TopLine) * LLineHeight;
         LLineRect.Bottom := LLineRect.Top + LLineHeight;
 
-        LLineNumber := '';
-
-        FPaintHelper.SetBackgroundColor(FLeftMargin.Colors.Background);
-
-        if (not Assigned(FMultiCarets) and (LLine = Lines.CaretPosition.Line + 1)) then
+        if (WordWrap.Enabled and WordWrap.Indicator.Visible and not (rfFirstRowOfLine in Rows[LIndex - 1].Flags)) then
         begin
-          FPaintHelper.SetBackgroundColor(FLeftMargin.Colors.Background);
-          Canvas.Brush.Color := FLeftMargin.Colors.Background;
-          if Assigned(FMultiCarets) then
-            FillRect(LLineRect);
+          BitBlt(Canvas.Handle,
+            FLeftMargin.GetWidth() - FLeftMargin.LineState.Width - 2 - FWordWrapIndicator.Width,
+            LLineRect.Top + ((LLineHeight - Integer(LTextSize.cy)) div 2),
+            FWordWrapIndicator.Width, FWordWrapIndicator.Height,
+            FWordWrapIndicator.Canvas.Handle, 0, 0, SRCCOPY);
         end
         else
         begin
-          LBackground := GetMarkBackgroundColor(LIndex);
-          if LBackground <> clNone then
-          begin
-            FPaintHelper.SetBackgroundColor(LBackground);
-            Canvas.Brush.Color := LBackground;
-            FillRect(LLineRect);
-          end
-        end;
+          LLine := DisplayRowToTextLine(LIndex);
 
-        if FLeftMargin.LineNumbers.Visible and (not WordWrap.Enabled or (rfFirstRowOfLine in Rows[LIndex - 1].Flags)) then
-        begin
-          LLineNumber := FLeftMargin.FormatLineNumber(LLine);
-          if Lines.CaretPosition.Line + 1 <> LLine then
-            if (lnoIntens in LeftMargin.LineNumbers.Options) and (LLineNumber[Length(LLineNumber)] <> '0') and
-              (LIndex <> LeftMargin.LineNumbers.StartFrom) then
-            begin
-              LLeftMarginWidth := LLineRect.Left + FLeftMargin.GetWidth - FLeftMargin.LineState.Width - 1;
-              LOldColor := Canvas.Pen.Color;
-              Canvas.Pen.Color := LeftMargin.Font.Color;
-              LTop := LLineRect.Top + ((LLineHeight - 1) div 2);
-              if LLine mod 5 = 0 then
-                Canvas.MoveTo(LLeftMarginWidth - FLeftMarginCharWidth + ((FLeftMarginCharWidth - 9) div 2), LTop)
-              else
-                Canvas.MoveTo(LLeftMarginWidth - FLeftMarginCharWidth + ((FLeftMarginCharWidth - 2) div 2), LTop);
-              Canvas.LineTo(LLeftMarginWidth - ((FLeftMarginCharWidth - 1) div 2), LTop);
-              Canvas.Pen.Color := LOldColor;
-
-              Continue;
-            end;
-        end;
-
-        if not FLeftMargin.LineNumbers.Visible then
           LLineNumber := '';
 
-        GetTextExtentPoint32(Canvas.Handle, PChar(LLineNumber), Length(LLineNumber), LTextSize);
-        ExtTextOut(Canvas.Handle,
-          LLineRect.Left + (FLeftMargin.GetWidth - FLeftMargin.LineState.Width - 2) - LTextSize.cx,
-          LLineRect.Top + ((LLineHeight - Integer(LTextSize.cy)) div 2),
-          ETO_OPAQUE, @LLineRect, PChar(LLineNumber), Length(LLineNumber), nil);
+          FPaintHelper.SetBackgroundColor(FLeftMargin.Colors.Background);
+
+          if (not Assigned(FMultiCarets) and (LLine = Lines.CaretPosition.Line + 1)) then
+          begin
+            FPaintHelper.SetBackgroundColor(FLeftMargin.Colors.Background);
+            Canvas.Brush.Color := FLeftMargin.Colors.Background;
+            if Assigned(FMultiCarets) then
+              FillRect(LLineRect);
+          end
+          else
+          begin
+            LBackground := GetMarkBackgroundColor(LIndex);
+            if LBackground <> clNone then
+            begin
+              FPaintHelper.SetBackgroundColor(LBackground);
+              Canvas.Brush.Color := LBackground;
+              FillRect(LLineRect);
+            end
+          end;
+
+          if FLeftMargin.LineNumbers.Visible and (not WordWrap.Enabled or (rfFirstRowOfLine in Rows[LIndex - 1].Flags)) then
+          begin
+            LLineNumber := FLeftMargin.FormatLineNumber(LLine);
+            if Lines.CaretPosition.Line + 1 <> LLine then
+              if (lnoIntens in LeftMargin.LineNumbers.Options) and (LLineNumber[Length(LLineNumber)] <> '0') and
+                (LIndex <> LeftMargin.LineNumbers.StartFrom) then
+              begin
+                LLeftMarginWidth := LLineRect.Left + FLeftMargin.GetWidth - FLeftMargin.LineState.Width - 1;
+                LOldColor := Canvas.Pen.Color;
+                Canvas.Pen.Color := LeftMargin.Font.Color;
+                LTop := LLineRect.Top + ((LLineHeight - 1) div 2);
+                if LLine mod 5 = 0 then
+                  Canvas.MoveTo(LLeftMarginWidth - FLeftMarginCharWidth + ((FLeftMarginCharWidth - 9) div 2), LTop)
+                else
+                  Canvas.MoveTo(LLeftMarginWidth - FLeftMarginCharWidth + ((FLeftMarginCharWidth - 2) div 2), LTop);
+                Canvas.LineTo(LLeftMarginWidth - ((FLeftMarginCharWidth - 1) div 2), LTop);
+                Canvas.Pen.Color := LOldColor;
+
+                Continue;
+              end;
+          end;
+
+          if not FLeftMargin.LineNumbers.Visible then
+            LLineNumber := '';
+
+          GetTextExtentPoint32(Canvas.Handle, PChar(LLineNumber), Length(LLineNumber), LTextSize);
+          ExtTextOut(Canvas.Handle,
+            LLineRect.Left + (FLeftMargin.GetWidth - FLeftMargin.LineState.Width - 2) - LTextSize.cx,
+            LLineRect.Top + ((LLineHeight - Integer(LTextSize.cy)) div 2),
+            ETO_OPAQUE, @LLineRect, PChar(LLineNumber), Length(LLineNumber), nil);
+        end;
       end;
       FPaintHelper.SetBackgroundColor(FLeftMargin.Colors.Background);
       { Erase the remaining area }
@@ -8420,17 +8480,6 @@ var
         FOnBeforeMarkPanelPaint(Self, Canvas, LPanelRect, AFirstLine, ALastLine);
     end;
     Canvas.Brush.Color := LOldColor;
-  end;
-
-  procedure PaintWordWrapIndicator;
-  var
-    LRow: Integer;
-  begin
-    if (WordWrap.Enabled and FWordWrap.Indicator.Visible) then
-      for LRow := AFirstLine to Min(Rows.Count - 1, ALastLine) do
-        if (not (rfFirstRowOfLine in Rows[LRow - 1].Flags)) then
-          FWordWrap.Indicator.Draw(Canvas, AClipRect.Left + FWordWrap.Indicator.Left, (LRow - TopLine) * LLineHeight,
-            LLineHeight);
   end;
 
   procedure PaintBorder;
@@ -8585,7 +8634,6 @@ begin
   LLineHeight := GetLineHeight;
   PaintLineNumbers;
   PaintBookmarkPanel;
-  PaintWordWrapIndicator;
   PaintBorder;
   PaintMarks;
   PaintActiveLineIndicator;
@@ -12239,27 +12287,28 @@ var
   LLineTextLength: Integer;
   LLineText: string;
 begin
-  Assert((BOFTextPosition <= ATextPosition) and (ATextPosition <= Lines.EOFTextPosition));
-
   LLineText := Lines[ATextPosition.Line];
   LLineTextLength := Length(LLineText);
 
-  LBeginPosition := ATextPosition;
+  LBeginPosition := TextPosition(1 + Min(ATextPosition.Char - 1, LLineTextLength), ATextPosition.Line);
   while ((LBeginPosition.Char > 1)
-    and not IsWordBreakChar(LLineText[LBeginPosition.Char])) do
+    and IsWordBreakChar(LLineText[LBeginPosition.Char - 1])) do
     Dec(LBeginPosition.Char);
-  if ((soExpandRealNumbers in FSelection.Options) and LLineText[LBeginPosition.Char].IsNumber) then
+  while ((LBeginPosition.Char > 1)
+    and not IsWordBreakChar(LLineText[LBeginPosition.Char - 1])) do
+    Dec(LBeginPosition.Char);
+  if ((soExpandRealNumbers in FSelection.Options) and LLineText[LBeginPosition.Char - 1].IsNumber) then
     while ((LBeginPosition.Char > 1)
-      and (LLineText[LBeginPosition.Char].IsNumber or CharInSet(LLineText[LBeginPosition.Char], BCEDITOR_REAL_NUMBER_CHARS))) do
+      and (LLineText[LBeginPosition.Char].IsNumber or CharInSet(LLineText[LBeginPosition.Char - 1], BCEDITOR_REAL_NUMBER_CHARS))) do
       Dec(LBeginPosition.Char);
 
-  LEndPosition := ATextPosition;
-  while ((LEndPosition.Char < LLineTextLength)
+  LEndPosition := LBeginPosition;
+  while ((LEndPosition.Char <= LLineTextLength)
     and not IsWordBreakChar(LLineText[LEndPosition.Char])) do
     Inc(LEndPosition.Char);
-  if ((soExpandRealNumbers in FSelection.Options) and LLineText[LBeginPosition.Char].IsNumber) then
+  if ((soExpandRealNumbers in FSelection.Options) and LLineText[LBeginPosition.Char + 1].IsNumber) then
     while ((LEndPosition.Char < LLineTextLength)
-      and (LLineText[LEndPosition.Char].IsNumber or CharInSet(LLineText[LEndPosition.Char], BCEDITOR_REAL_NUMBER_CHARS))) do
+      and (LLineText[LEndPosition.Char + 1].IsNumber or CharInSet(LLineText[LEndPosition.Char + 1], BCEDITOR_REAL_NUMBER_CHARS))) do
       Inc(LEndPosition.Char);
 
   SetCaretAndSelection(LEndPosition, LBeginPosition, LEndPosition);
@@ -12668,7 +12717,7 @@ begin
     Result := DisplayPosition(1, 1)
   else
   begin
-    Rows; // Ensure, Lines.FirstRow is initializied
+    GetRows(); // Ensure Lines.FirstRow is initializied
 
     Result := DisplayPosition(ATextPosition.Char, Lines.FirstRow[ATextPosition.Line] + 1);
 
@@ -13754,6 +13803,7 @@ end;
 
 function TCustomBCEditor.WordEnd(const ATextPosition: TBCEditorTextPosition): TBCEditorTextPosition;
 var
+  LLineBeginPos: PChar;
   LLineEndPos: PChar;
   LLinePos: PChar;
   LLineText: string;
@@ -13761,15 +13811,19 @@ begin
   LLineText := Lines[ATextPosition.Line];
   if (LLineText = '') then
     Result := Lines.EOLTextPosition[ATextPosition.Line]
-  else
+  else if (ATextPosition.Char - 1 < Length(LLineText)) then
   begin
-    LLinePos := @LLineText[1 + Min(ATextPosition.Char - 1, Length(LLineText))];
+    LLineBeginPos := @LLineText[1];
+    LLinePos := @LLineText[ATextPosition.Char];
     LLineEndPos := @LLineText[Length(LLineText)];
     while ((LLinePos <= LLineEndPos) and IsWordChar(LLinePos^)) do
       Inc(LLinePos);
-    Inc(LLinePos);
-    Result := TextPosition(1 + LLinePos - @LLineText[1], ATextPosition.Line);
-  end;
+    if (LLinePos <= LLineEndPos) then
+      Inc(LLinePos);
+    Result := TextPosition(1 + LLinePos - LLineBeginPos, ATextPosition.Line);
+  end
+  else
+    Result := Lines.EOLTextPosition[ATextPosition.Line];
 end;
 
 function TCustomBCEditor.WordStart: TBCEditorTextPosition;
