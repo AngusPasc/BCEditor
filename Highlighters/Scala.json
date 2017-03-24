@@ -1,24 +1,14 @@
-﻿{
+{
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// Hello World in Scala\r\n",
-          "\r\n",
-          "object HelloWorld {\r\n",
-          "  def main(args: Array[String]) {\r\n",
-          "   println(\"Hello, world!\\n\");\r\n",
-          "  }\r\n",
-          "}"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in Scala\r\n",
+      "\r\n",
+      "object HelloWorld {\r\n",
+      "  def main(args: Array[String]) {\r\n",
+      "    println(\"Hello, world!\\n\");\r\n",
+      "  }\r\n",
+      "}"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

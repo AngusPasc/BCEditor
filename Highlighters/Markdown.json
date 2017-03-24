@@ -1,30 +1,20 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "03.02.2017",
-        "Sample": [
-          "## Hello World in Markdown ##\r\n",
-          "\r\n",
-          "### Examples ###\r\n",
-          "\r\n",
-          "*italic* **bold**\r\n",
-          "\r\n",
-          "_italic_ __bold__\r\n",
-          "\r\n",
-          "`<code>` spans are delimited by backticks.\r\n",
-          "\r\n",
-          "You can include literal backticks like `` `this` ``.\r\n",
-          "\r\n",
-          "Welcome to my homepage [hyperlink syntax](http://www.bonecode.com)"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "## Hello World in Markdown ##\r\n",
+      "\r\n",
+      "### Examples ###\r\n",
+      "\r\n",
+      "*italic* **bold**\r\n",
+      "\r\n",
+      "_italic_ __bold__\r\n",
+      "\r\n",
+      "`<code>` spans are delimited by backticks.\r\n",
+      "\r\n",
+      "You can include literal backticks like `` `this` ``.\r\n",
+      "\r\n",
+      "Welcome to my homepage [hyperlink syntax](http://www.bonecode.com)"
+    ],
     "Editor": {
       "URIOpener": true
     },
@@ -178,7 +168,7 @@
                     "CloseOnTerm": true
                   },
                   "TokenRange": {
-                    "Open": "\\\`",
+                    "Open": "\\`",
                     "Close": ""
                   }
                 },

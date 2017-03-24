@@ -1,18 +1,8 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "10.01.2017",
-        "Sample": [
-          "MsgBox(64, \"Tutorial\", \"Hello World!\")"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "MsgBox(64, \"Tutorial\", \"Hello World!\")"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -31,24 +21,24 @@
               "Open": ";"
             }
           },
-							 {
+          {
             "Type": "BlockComment",
             "Attributes": {
               "Element": "Comment"
             },
             "TokenRange": {
               "Open": "#COMMENTS-START",
-										 "Close": "#COMMENTS-END"
+              "Close": "#COMMENTS-END"
             }
           },
-							 {
+          {
             "Type": "BlockComment",
             "Attributes": {
               "Element": "Comment"
             },
             "TokenRange": {
               "Open": "#CS",
-										 "Close": "#CE"
+              "Close": "#CE"
             }
           },
           {
@@ -621,39 +611,39 @@
   "CodeFolding": {
     "Ranges": [
       {
-				   "SkipRegion": [
+        "SkipRegion": [
           {
             "OpenToken": "\"",
             "CloseToken": "\"",
             "RegionType": "SingleLineString"
           }
-						],
+        ],
         "FoldRegion": [
-						  {
+          {
             "OpenToken": "#COMMENTS-START",
             "CloseToken": "#COMMENTS-END",
-									"Properties": {
+            "Properties": {
               "NoSubs": true,
-										 "BeginWithBreakChar": true,
-										 "OpenTokenBreaksLine": true
-									}
+              "BeginWithBreakChar": true,
+              "OpenTokenBreaksLine": true
+            }
           },
-							 {
+          {
             "OpenToken": "#CS",
             "CloseToken": "#CE",
-									"Properties": {
+            "Properties": {
               "NoSubs": true,
-										 "BeginWithBreakChar": true,
-										 "OpenTokenBreaksLine": true
-									}
+              "BeginWithBreakChar": true,
+              "OpenTokenBreaksLine": true
+            }
           },
-							 {
+          {
             "OpenToken": "#REGION",
             "CloseToken": "#ENDREGION",
-									"Properties": {
+            "Properties": {
               "BeginWithBreakChar": true,
-										 "OpenTokenBreaksLine": true
-									}
+              "OpenTokenBreaksLine": true
+            }
           },
           {
             "OpenToken": "FUNC",

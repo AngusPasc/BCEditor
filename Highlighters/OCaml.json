@@ -1,20 +1,10 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "(* Hello World in OCaml *)\r\n",
-          "\r\n",
-          "print_string \"Hello world!\";;"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "(* Hello World in OCaml *)\r\n",
+      "\r\n",
+      "print_string \"Hello world!\";;"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -136,7 +126,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

@@ -1,23 +1,13 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "10.01.2017",
-        "Sample": [
-          "// Hello World in Pascal\r\n",
-          "\r\n",
-          "program HelloWorld;\r\n",
-          "begin\r\n",
-          "  writeln('Hello, world!');\r\n",
-          "end."
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in Pascal\r\n",
+      "\r\n",
+      "program HelloWorld;\r\n",
+      "begin\r\n",
+      "  writeln('Hello, world!');\r\n",
+      "end."
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -703,7 +693,7 @@
             "Properties": {
               "OpenTokenEnd": "}",
               "ShowGuideLine": false,
-										 "BeginWithBreakChar": true
+              "BeginWithBreakChar": true
             }
           }
         ]

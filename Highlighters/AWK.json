@@ -1,19 +1,9 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "# Hello World in AWK\r\n",
-          "BEGIN { print \"Hello, world!\" }"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "# Hello World in AWK\r\n",
+      "BEGIN { print \"Hello, world!\" }"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

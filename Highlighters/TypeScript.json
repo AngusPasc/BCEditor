@@ -1,27 +1,15 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// // Hello World in TypeScript\r\n",
-          "class Greeter {\r\n",
-          "	   constructor(public greeting: string) { }\r\n",
-          "	   greet() {\r\n",
-          "	      return \"<h1>\" + this.greeting + \"</h1>\";\r\n",
-          "	   }\r\n",
-          "};\r\n",
-          "\r\n",
-          "var greeter = new Greeter(\"Hello, world!\");\r\n",
-          "\r\n",
-          "document.body.innerHTML = greeter.greet();"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
+    "Sample": [
+      "Simple text file with Universal Resource Identifier highlighting and opener (with Ctrl key).\r\n",
+      "\r\n",
+      "\r\n",
+      "\r\n",
+      "\r\n",
+      "news:comp.lang.pascal.borland"
+    ],
+    "Editor": {
+      "URIOpener": true
     },
     "MainRules": {
       "Attributes": {
@@ -30,413 +18,187 @@
       "SubRules": {
         "Range": [
           {
-            "Type": "BlockComment",
-            "Attributes": {
-              "Element": "Comment"
-            },
-            "TokenRange": {
-              "Open": "/*",
-              "Close": "*/"
-            }
-          },
-          {
-            "Type": "LineComment",
-            "Attributes": {
-              "Element": "Comment"
-            },
-            "Properties": {
-              "CloseOnEndOfLine": true
-            },
-            "TokenRange": {
-              "Open": "//"
-            }
-          },
-          {
-            "Type": "String",
+            "Type": "WebLink",
             "Attributes": {
               "Element": "String"
             },
-            "Properties": {
-              "CloseOnEndOfLine": true
-            },
-            "TokenRange": {
-              "Open": "'",
-              "Close": "'"
-            },
-            "SubRules": {
-              "Range": [
-                {
-                  "Type": "String",
-                  "Attributes": {
-                    "Element": "String"
-                  },
-                  "Properties": {
-                    "CloseOnEndOfLine": true,
-                    "CloseOnTerm": true
-                  },
-                  "TokenRange": {
-                    "Open": "\\'",
-                    "Close": ""
-                  }
-                },
-                {
-                  "Type": "String",
-                  "Attributes": {
-                    "Element": "String"
-                  },
-                  "Properties": {
-                    "CloseOnEndOfLine": true,
-                    "CloseOnTerm": true
-                  },
-                  "TokenRange": {
-                    "Open": "\\\\",
-                    "Close": ""
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "Type": "String",
-            "Attributes": {
-              "Element": "String"
-            },
-            "Properties": {
-              "CloseOnEndOfLine": true
-            },
-            "TokenRange": {
-              "Open": "\"",
-              "Close": "\""
-            },
-            "SubRules": {
-              "Range": [
-                {
-                  "Type": "String",
-                  "Attributes": {
-                    "Element": "String"
-                  },
-                  "Properties": {
-                    "CloseOnEndOfLine": true,
-                    "CloseOnTerm": true
-                  },
-                  "TokenRange": {
-                    "Open": "\\\"",
-                    "Close": ""
-                  }
-                },
-                {
-                  "Type": "String",
-                  "Attributes": {
-                    "Element": "String"
-                  },
-                  "Properties": {
-                    "CloseOnEndOfLine": true,
-                    "CloseOnTerm": true
-                  },
-                  "TokenRange": {
-                    "Open": "\\\\",
-                    "Close": ""
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "Type": "Method",
-            "Attributes": {
-              "Element": "MethodName"
-            },
-            "Properties": {
-              "AlternativeClose": [
-                "("
-              ]
-            },
-            "TokenRange": {
-              "Open": "function",
-              "Close": "{"
-            },
-            "SubRules": {
-              "KeyList": [
-                {
-                  "Type": "Symbol",
-                  "Words": [
-                    "{",
-                    "("
-                  ],
-                  "Attributes": {
-                    "Element": "Symbol"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "Type": "Method",
-            "Attributes": {
-              "Element": "MethodName"
-            },
-            "TokenRange": {
-              "Open": "interface",
-              "Close": "{"
-            },
-            "SubRules": {
-              "KeyList": [
-                {
-                  "Type": "Symbol",
-                  "Words": [
-                    "{"
-                  ],
-                  "Attributes": {
-                    "Element": "Symbol"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "Type": "Method",
-            "Attributes": {
-              "Element": "MethodName"
-            },
-            "Properties": {
-              "AlternativeClose": [
-                "("
-              ]
-            },
-            "TokenRange": {
-              "Open": "constructor",
-              "Close": ";"
-            },
-            "SubRules": {
-              "KeyList": [
-                {
-                  "Type": "Symbol",
-                  "Words": [
-                    ";",
-                    "("
-                  ],
-                  "Attributes": {
-                    "Element": "Symbol"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "Type": "Hex",
-            "Attributes": {
-              "Element": "Number"
-            },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "<>\\^{|}\"",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true
             },
             "TokenRange": {
-              "Open": "0",
-              "OpenBreakType": "Any"
-            }
-          }
-        ],
-        "KeyList": [
-          {
-            "Type": "ReservedWord",
-            "Words": [
-              "any",
-              "as",
-              "break",
-              "case",
-              "catch",
-              "class",
-              "continue",
-              "debugger",
-              "declare",
-              "default",
-              "delete",
-              "do",
-              "else",
-              "enum",
-              "export",
-              "extends",
-              "false",
-              "finally",
-              "for",
-              "from",
-              "get",
-              "if",
-              "implements",
-              "import",
-              "in",
-              "instanceof",
-              "module",
-              "null",
-              "of",
-              "package",
-              "private",
-              "protected",
-              "public",
-              "require",
-              "return",
-              "set",
-              "static",
-              "super",
-              "switch",
-              "symbol",
-              "this",
-              "throw",
-              "true",
-              "try",
-              "type",
-              "typeof",
-              "var",
-              "while",
-              "with",
-              "void",
-              "yield"
-            ],
-            "Attributes": {
-              "Element": "ReservedWord"
+              "Open": "http://",
+              "Close": " "
             }
           },
           {
-            "Type": "Method",
-            "Words": [
-              "boolean",
-              "const",
-              "constructor",
-              "function",
-              "interface",
-              "let",
-              "new",
-              "string",
-              "number"
-            ],
+            "Type": "WebLink",
             "Attributes": {
-              "Element": "Method",
-              "EscapeChar": "&"
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "https://",
+              "Close": " "
             }
           },
           {
-            "Type": "Symbol",
-            "Words": [
-              ":",
-              ";",
-              "<",
-              ">",
-              "=",
-              "/",
-              "*",
-              ".",
-              ",",
-              "-",
-              "+",
-              "(",
-              ")",
-              "[",
-              "]",
-              "{",
-              "}"
-            ],
+            "Type": "News",
             "Attributes": {
-              "Element": "Symbol"
-            }
-          }
-        ],
-        "Set": [
-          {
-            "Type": "Numbers",
-            "Symbols": "0123456789",
-            "Attributes": {
-              "Element": "Number"
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "news://",
+              "Close": " "
             }
           },
           {
-            "Type": "Float",
-            "Symbols": ".0123456789",
+            "Type": "News",
             "Attributes": {
-              "Element": "Number"
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "news:",
+              "Close": " "
+            }
+          },
+          {
+            "Type": "Gopher",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "gopher://",
+              "Close": " "
+            }
+          },
+          {
+            "Type": "Prospero",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "prospero://",
+              "Close": " "
+            }
+          },
+          {
+            "Type": "Nntp",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "nntp://",
+              "Close": " "
+            }
+          },
+          {
+            "Type": "Ftp",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "ftp://",
+              "Close": " "
+            }
+          },
+          {
+            "Type": "Wais",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "wais://",
+              "Close": " "
+            }
+          },
+          {
+            "Type": "Telnet",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "telnet://",
+              "Close": " "
+            }
+          },
+          {
+            "Type": "MailtoLink",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Delimiters": "<>\\",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "mailto:",
+              "Close": " "
+            }
+          },
+          {
+            "Type": "WWW",
+            "Attributes": {
+              "Element": "String"
+            },
+            "Delimiters": "<>\\^{|}\"",
+            "Properties": {
+              "CloseOnTerm": true,
+              "CloseOnEndOfLine": true
+            },
+            "TokenRange": {
+              "Open": "www",
+              "Close": " "
             }
           }
         ]
       }
     }
-  },
-  "CodeFolding": {
-    "Ranges": [
-      {
-        "Options": {
-          "StringEscapeChar": "\\"
-        },
-        "SkipRegion": [
-          {
-            "OpenToken": "'",
-            "CloseToken": "'",
-            "RegionType": "SingleLineString"
-          },
-          {
-            "OpenToken": "\"",
-            "CloseToken": "\"",
-            "RegionType": "SingleLineString"
-          },
-          {
-            "OpenToken": "//",
-            "RegionType": "SingleLine"
-          },
-          {
-            "OpenToken": "/*",
-            "CloseToken": "*/",
-            "RegionType": "MultiLine"
-          }
-        ],
-        "FoldRegion": [
-          {
-            "OpenToken": "{",
-            "CloseToken": "}",
-            "Properties": {
-              "BreakCharFollows": false
-            }
-          }
-        ]
-      }
-    ]
-  },
-  "MatchingPair": {
-    "Pairs": [
-      {
-        "OpenToken": "(",
-        "CloseToken": ")"
-      },
-      {
-        "OpenToken": "[",
-        "CloseToken": "]"
-      },
-      {
-        "OpenToken": "{",
-        "CloseToken": "}"
-      }
-    ]
-  },
-  "CompletionProposal": {
-    "SkipRegion": [
-      {
-        "OpenToken": "'",
-        "CloseToken": "'",
-        "RegionType": "SingleLineString"
-      },
-      {
-        "OpenToken": "\"",
-        "CloseToken": "\"",
-        "RegionType": "SingleLineString"
-      },
-      {
-        "OpenToken": "//",
-        "RegionType": "SingleLine"
-      },
-      {
-        "OpenToken": "/*",
-        "CloseToken": "*/",
-        "RegionType": "MultiLine"
-      }
-    ]
   }
 }

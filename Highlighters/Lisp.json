@@ -1,22 +1,12 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// Hello World in Lisp\r\n",
-          "\r\n",
-          "(defun Hello ()\r\n",
-          "  \"Hello World\"\r\n",
-          ") "
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in Lisp\r\n",
+      "\r\n",
+      "(defun Hello ()\r\n",
+      "  \"Hello World\"\r\n",
+      ") "
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -145,7 +135,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

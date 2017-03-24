@@ -1,26 +1,16 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// Hello World in C++\r\n",
-          "\r\n",
-          "#include <iostream>\r\n",
-          "\r\n",
-          "int main()\r\n",
-          "{\r\n",
-          "   std::cout << \"Hello, world!\" << std::endl;\r\n",
-          "   return 0;\r\n",
-          "}"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in C++\r\n",
+      "\r\n",
+      "#include <iostream>\r\n",
+      "\r\n",
+      "int main()\r\n",
+      "{\r\n",
+      "    std::cout << \"Hello, world!\" << std::endl;\r\n",
+      "    return 0;\r\n",
+      "}"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -156,7 +146,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

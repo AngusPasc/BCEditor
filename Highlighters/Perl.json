@@ -1,24 +1,14 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "#!/usr/bin/perl -w\r\n",
-          "\r\n",
-          "# Hello World in Perl\r\n",
-          "\r\n",
-          "use strict;\r\n",
-          "\r\n",
-          "print \"Hello, world!\\n\";"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "#!/usr/bin/perl -w\r\n",
+      "\r\n",
+      "# Hello World in Perl\r\n",
+      "\r\n",
+      "use strict;\r\n",
+      "\r\n",
+      "print \"Hello, world!\\n\";"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -113,7 +103,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

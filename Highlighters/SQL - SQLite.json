@@ -1,25 +1,15 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "CREATE TABLE DUAL\r\n",
-          "(\r\n",
-          "  DUMMY VARCHAR(1)\r\n",
-          ");\r\n",
-          "\r\n",
-          "INSERT INTO DUAL (DUMMY) VALUES ('X');\r\n",
-          "\r\n",
-          "SELECT \"Hello world!\" FROM DUAL;"
-        ]
-      },
-      "Author": {
-        "Name": "Michal Mutl",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "CREATE TABLE DUAL\r\n",
+      "(\r\n",
+      "  DUMMY VARCHAR(1)\r\n",
+      ");\r\n",
+      "\r\n",
+      "INSERT INTO DUAL (DUMMY) VALUES ('X');\r\n",
+      "\r\n",
+      "SELECT \"Hello world!\" FROM DUAL;"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

@@ -1,18 +1,8 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "SELECT \"Hello world!\" FROM dual;"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "SELECT \"Hello world!\" FROM dual;"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

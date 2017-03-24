@@ -1,21 +1,11 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "declare @val varbinary (16)\r\n",
-          "select @val = textptr (ut) from unitable\r\n",
-          "where i = 100\r\n",
-          "writetext unitable.ut @val with log \"Hello world\""
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "declare @val varbinary (16)\r\n",
+      "select @val = textptr (ut) from unitable\r\n",
+      "where i = 100\r\n",
+      "writetext unitable.ut @val with log \"Hello world\""
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

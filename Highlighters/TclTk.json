@@ -1,27 +1,17 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "#!/path/to/wish\r\n",
-          "\r\n",
-          "puts \"Hello, world!\"",
-          "\r\n",
-          "set RLSerial::Open 1",
-          "\r\n",
-          "set mainframe [MainFrame $base.mainframe  -menu $descmenu -textvariable gMainState]",
-          "\r\n",
-          "yruyr:dkdk :jdd ::dfsfs sfs",
-          "\r\n"
-        ]
-      },
-      "Author": {
-        "Name": "Ilya Ginzburg",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "#!/path/to/wish\r\n",
+      "\r\n",
+      "puts \"Hello, world!\"",
+      "\r\n",
+      "set RLSerial::Open 1",
+      "\r\n",
+      "set mainframe [MainFrame $base.mainframe  -menu $descmenu -textvariable gMainState]",
+      "\r\n",
+      "yruyr:dkdk :jdd ::dfsfs sfs",
+      "\r\n"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -106,7 +96,7 @@
             "Attributes": {
               "Element": "HexNumber"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

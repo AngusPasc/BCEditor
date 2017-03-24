@@ -1,23 +1,13 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "09.02.2017",
-        "Sample": [
-          "<!-- Hello World in XML -->\r\n",
-          "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n",
-          "<?xml-stylesheet type=\"text/xsl\" href=\"HelloWorld.xsl\" ?>\r\n",
-          "<text>\r\n",
-          "  <string>Hello, world!</string>\r\n",
-          "</text>"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "<!-- Hello World in XML -->\r\n",
+      "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n",
+      "<?xml-stylesheet type=\"text/xsl\" href=\"HelloWorld.xsl\" ?>\r\n",
+      "<text>\r\n",
+      "  <string>Hello, world!</string>\r\n",
+      "</text>"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

@@ -1,22 +1,12 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "REGBS  EQU    $1000    ; location of on-board peripherals\r\n",
-          "PAO    EQU    0      ; port A offset from REGBS\r\n",
-          "      ldx    #REGBS   ; load X with a base address\r\n",
-          "      brset  %10000000 PAO,X DEST\r\n",
-          "                  ; goto DEST if port A bit 7 high"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "REGBS   EQU     $1000     ; location of on-board peripherals\r\n",
+      "PAO     EQU     0         ; port A offset from REGBS\r\n",
+      "        ldx     #REGBS    ; load X with a base address\r\n",
+      "        brset   %10000000 PAO,X DEST\r\n",
+      "                          ; goto DEST if port A bit 7 high"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

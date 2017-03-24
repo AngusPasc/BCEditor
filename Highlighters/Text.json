@@ -1,23 +1,13 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "20.01.2017",
-        "Sample": [
-          "Simple text file with Universal Resource Identifier highlighting and opener (with Ctrl key).\r\n",
-          "\r\n",
-          "http://www.bonecode.com\r\n",
-          "www.bonecode.com\r\n",
-          "mailto:\r\n",
-          "news:comp.lang.pascal.borland"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "Simple text file with Universal Resource Identifier highlighting and opener (with Ctrl key).\r\n",
+      "\r\n",
+      "\r\n",
+      "\r\n",
+      "\r\n",
+      "news:comp.lang.pascal.borland"
+    ],
     "Editor": {
       "URIOpener": true
     },

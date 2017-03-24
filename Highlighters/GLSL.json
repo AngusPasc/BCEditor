@@ -1,23 +1,13 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// GLSL example\r\n",
-          "void mainImage( out vec4 fragColor, in vec2 fragCoord )\r\n",
-          "{\r\n",
-          "  vec2 uv = fragCoord.xy / iResolution.xy;\r\n",
-          "  fragColor = vec4(uv,0.5+0.5*sin(iGlobalTime),1.0);\r\n",
-          "}\r\n"
-        ]
-      },
-      "Author": {
-        "Name": "Wouter van Nifterick",
-        "Mail": "woutervannifterick@gmail.com"
-      }
-    },
+    "Sample": [
+      "// GLSL example\r\n",
+      "void mainImage( out vec4 fragColor, in vec2 fragCoord )\r\n",
+      "{\r\n",
+      "  vec2 uv = fragCoord.xy / iResolution.xy;\r\n",
+      "  fragColor = vec4(uv,0.5+0.5*sin(iGlobalTime),1.0);\r\n",
+      "}\r\n"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -187,7 +177,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true
