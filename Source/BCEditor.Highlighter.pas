@@ -99,9 +99,9 @@ type
     strict private
       FElements: TList;
       FFileName: string;
+      FHighlighter: TBCEditorHighlighter;
       FInfo: TInfo;
       FName: string;
-      FHighlighter: TBCEditorHighlighter;
     protected
       property Highlighter: TBCEditorHighlighter read FHighlighter;
     public
@@ -389,11 +389,11 @@ type
       procedure ImportEditorProperties(AEditorObject: TJsonObject);
       procedure ImportElements(AColorsObject: TJsonObject);
       procedure ImportHighlighter(AJSONObject: TJsonObject);
-      procedure ImportInfo(AInfoObject: TJsonObject);
       procedure ImportKeyList(AKeyList: TKeyList; KeyListObject: TJsonObject; const AElementPrefix: string);
       procedure ImportMatchingPair(AMatchingPairObject: TJsonObject);
       procedure ImportRange(ARange: TRange; RangeObject: TJsonObject; AParentRange: TRange = nil;
         ASkipBeforeSubRules: Boolean = False; const AElementPrefix: string = '');
+      procedure ImportSample(ASampleArray: TJsonArray);
       procedure ImportSet(ASet: TSet; SetObject: TJsonObject; const AElementPrefix: string);
     protected
       property Highlighter: TBCEditorHighlighter read FHighlighter;
@@ -420,7 +420,6 @@ type
     FFileName: string;
     FFoldCloseKeyChars: TBCEditorCharSet;
     FFoldOpenKeyChars: TBCEditorCharSet;
-    FInfo: TInfo;
     FLoading: Boolean;
     FMainRules: TRange;
     FMatchingPairHighlight: Boolean;
@@ -429,6 +428,7 @@ type
     FName: string;
     FPreviousEndOfLine: Boolean;
     FCurrentLineIndex: LongInt;
+    FSample: string;
     FSkipCloseKeyChars: TBCEditorCharSet;
     FSkipOpenKeyChars: TBCEditorCharSet;
     FTemporaryCurrentTokens: TList;
@@ -479,13 +479,12 @@ type
     property FileName: string read FFileName write FFileName;
     property FoldCloseKeyChars: TBCEditorCharSet read FFoldCloseKeyChars write FFoldCloseKeyChars;
     property FoldOpenKeyChars: TBCEditorCharSet read FFoldOpenKeyChars write FFoldOpenKeyChars;
-    property Info: TInfo read FInfo write FInfo;
-    property xLoading: Boolean read FLoading write FLoading;
     property MainRules: TRange read FMainRules;
     property MatchingPairHighlight: Boolean read FMatchingPairHighlight write FMatchingPairHighlight default True;
     property MatchingPairs: TList read FMatchingPairs write FMatchingPairs;
     property MultiHighlighter: Boolean read FMultiHighlighter write FMultiHighlighter;
     property Name: string read FName write FName;
+    property Sample: string read FSample write FSample;
     property SkipCloseKeyChars: TBCEditorCharSet read FSkipCloseKeyChars write FSkipCloseKeyChars;
     property SkipOpenKeyChars: TBCEditorCharSet read FSkipOpenKeyChars write FSkipOpenKeyChars;
     property WordBreakChars: TBCEditorCharSet read FWordBreakChars write SetWordBreakChars;
@@ -2195,38 +2194,12 @@ begin
   FHighlighter.Clear;
 
   LHighlighterObject := AJSONObject['Highlighter'];
-  ImportInfo(LHighlighterObject['Info'].ObjectValue);
+  ImportSample(LHighlighterObject.A['Sample']);
   ImportEditorProperties(LHighlighterObject['Editor'].ObjectValue);
   ImportRange(FHighlighter.MainRules, LHighlighterObject['MainRules'].ObjectValue);
   ImportCodeFolding(AJSONObject['CodeFolding'].ObjectValue);
   ImportMatchingPair(AJSONObject['MatchingPair'].ObjectValue);
   ImportCompletionProposal(AJSONObject['CompletionProposal'].ObjectValue);
-end;
-
-procedure TBCEditorHighlighter.TImportJSON.ImportInfo(AInfoObject: TJsonObject);
-var
-  LHighlighterInfo: TInfo;
-  LIndex: Integer;
-  LObject: TJsonObject;
-  LSampleArray: TJsonArray;
-begin
-  if Assigned(AInfoObject) then
-  begin
-    LHighlighterInfo := FHighlighter.Info;
-    { General }
-    LObject := AInfoObject['General'];
-    FHighlighter.MultiHighlighter := LObject.B['MultiHighlighter'];
-    LHighlighterInfo.General.Version := LObject['Version'].Value;
-    LHighlighterInfo.General.Date := LObject['Date'].Value;
-    LSampleArray := LObject.A['Sample'];
-    for LIndex := 0 to LSampleArray.Count - 1 do
-      LHighlighterInfo.General.Sample := LHighlighterInfo.General.Sample + LSampleArray.S[LIndex];
-    { Author }
-    LObject := AInfoObject['Author'];
-    LHighlighterInfo.Author.Name := LObject['Name'].Value;
-    LHighlighterInfo.Author.Email := LObject['Email'].Value;
-    LHighlighterInfo.Author.Comments := LObject['Comments'].Value;
-  end;
 end;
 
 procedure TBCEditorHighlighter.TImportJSON.ImportKeyList(AKeyList: TKeyList; KeyListObject: TJsonObject;
@@ -2438,6 +2411,15 @@ begin
   end;
 end;
 
+procedure TBCEditorHighlighter.TImportJSON.ImportSample(ASampleArray: TJsonArray);
+var
+  LIndex: Integer;
+begin
+  if Assigned(ASampleArray) then
+    for LIndex := 0 to ASampleArray.Count - 1 do
+      FHighlighter.Sample := FHighlighter.Sample + ASampleArray.S[LIndex];
+end;
+
 procedure TBCEditorHighlighter.TImportJSON.ImportSet(ASet: TSet; SetObject: TJsonObject;
   const AElementPrefix: string);
 begin
@@ -2477,7 +2459,6 @@ begin
 
   FCompletionProposalSkipRegions := TBCEditorCodeFolding.TSkipRegions.Create(TBCEditorCodeFolding.TSkipRegions.TItem);
 
-  Info := TInfo.Create;
   FMainRules := TRange.Create;
   FMainRules.Parent := FMainRules;
 
@@ -2505,8 +2486,6 @@ begin
   FComments := nil;
   FMainRules.Free;
   FMainRules := nil;
-  FInfo.Free;
-  FInfo := nil;
   FAttributes.Free;
   FAttributes := nil;
   FCompletionProposalSkipRegions.Free;
@@ -2760,12 +2739,12 @@ begin
   FSkipCloseKeyChars := [];
   FAttributes.Clear;
   FMainRules.Clear;
-  FInfo.Clear;
   FComments.Clear;
   FCompletionProposalSkipRegions.Clear;
   for LIndex := FMatchingPairs.Count - 1 downto 0 do
     Dispose(PMatchingPairToken(FMatchingPairs.Items[LIndex]));
   FMatchingPairs.Clear;
+  FSample := '';
   for LIndex := 0 to FCodeFoldingRangeCount - 1 do
   begin
     FCodeFoldingRegions[LIndex].Free;
