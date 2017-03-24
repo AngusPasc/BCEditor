@@ -1,20 +1,10 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// Hello World in JavaScript\r\n",
-          "\r\n",
-          "document.write('Hello, world!');"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in JavaScript\r\n",
+      "\r\n",
+      "document.write('Hello, world!');"
+    ],
     "MainRules": {
       "Name": "JavaScript",
       "Attributes": {
@@ -207,7 +197,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true
@@ -218,7 +208,7 @@
             }
           },
           {
-            "File": "PHP.json",
+            "File": "PHP",
             "IncludeRange": "PHP"
           }
         ],

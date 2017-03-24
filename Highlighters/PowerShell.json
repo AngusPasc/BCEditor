@@ -1,21 +1,11 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "# Filename: Hello.ps1\r\n",
-          "Write-Host\r\n",
-          "Write-Host 'Hello World!'\r\n",
-          "# end of script"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "# Filename: Hello.ps1\r\n",
+      "Write-Host\r\n",
+      "Write-Host 'Hello World!'\r\n",
+      "# end of script"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -136,7 +126,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

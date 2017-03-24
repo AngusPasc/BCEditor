@@ -1,29 +1,19 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "CREATE FUNCTION concat_lower_or_upper(a text, b text, uppercase boolean DEFAULT false)\r\n",
-          "RETURNS text\r\n",
-          "AS\r\n",
-          "$$\r\n",
-          " SELECT CASE\r\n",
-          "      WHEN $3 THEN UPPER($1 || ' ' || $2)\r\n",
-          "      ELSE LOWER($1 || ' ' || $2)\r\n",
-          "      END;\r\n",
-          "$$\r\n",
-          "LANGUAGE SQL IMMUTABLE STRICT;\r\n",
-          "\r\n",
-          "SELECT concat_lower_or_upper('Hello', 'World');"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "CREATE FUNCTION concat_lower_or_upper(a text, b text, uppercase boolean DEFAULT false)\r\n",
+      "RETURNS text\r\n",
+      "AS\r\n",
+      "$$\r\n",
+      " SELECT CASE\r\n",
+      "        WHEN $3 THEN UPPER($1 || ' ' || $2)\r\n",
+      "        ELSE LOWER($1 || ' ' || $2)\r\n",
+      "        END;\r\n",
+      "$$\r\n",
+      "LANGUAGE SQL IMMUTABLE STRICT;\r\n",
+      "\r\n",
+      "SELECT concat_lower_or_upper('Hello', 'World');"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

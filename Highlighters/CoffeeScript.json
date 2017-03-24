@@ -1,20 +1,10 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "# hello world example\r\n",
-          "first_word = \"Hello\"\r\n",
-          "both_words = \"#{first_word} World\""
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "# hello world example\r\n",
+      "first_word = \"Hello\"\r\n",
+      "both_words = \"#{first_word} World\""
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -138,7 +128,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

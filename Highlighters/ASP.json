@@ -1,20 +1,10 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "<%\r\n",
-          "response.write(\"Hello World!\")\r\n",
-          "%>"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "<%\r\n",
+      "response.write(\"Hello World!\")\r\n",
+      "%>"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

@@ -1,22 +1,12 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "#!/usr/bin/ruby -w\r\n",
-          "\r\n",
-          "# This is a single line comment.\r\n",
-          "\r\n",
-          "puts \"Hello, Ruby!\""
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "#!/usr/bin/ruby -w\r\n",
+      "\r\n",
+      "# This is a single line comment.\r\n",
+      "\r\n",
+      "puts \"Hello, Ruby!\""
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -152,7 +142,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

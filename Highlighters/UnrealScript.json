@@ -1,27 +1,17 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// Hello World in UnrealScript\r\n",
-          "\r\n",
-          "class HelloWorldGame extends GameInfo;\r\n",
-          "\r\n",
-          "event InitGame( string Options, out string Error )\r\n",
-          "{\r\n",
-          "   super.InitGame( Options, Error );\r\n",
-          "\r\n",
-          "   `log( \"Hello, world!\" );\r\n",
-          "}"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in UnrealScript\r\n",
+      "\r\n",
+      "class HelloWorldGame extends GameInfo;\r\n",
+      "\r\n",
+      "event InitGame( string Options, out string Error )\r\n",
+      "{\r\n",
+      "    super.InitGame( Options, Error );\r\n",
+      "\r\n",
+      "    `log( \"Hello, world!\" );\r\n",
+      "}"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -234,7 +224,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

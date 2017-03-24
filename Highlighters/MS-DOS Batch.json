@@ -1,21 +1,11 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "REM Hello World in Batch\r\n",
-          "\r\n",
-          "@echo off\r\n",
-          "echo Hello, world!"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "REM Hello World in Batch\r\n",
+      "\r\n",
+      "@echo off\r\n",
+      "echo Hello, world!"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"

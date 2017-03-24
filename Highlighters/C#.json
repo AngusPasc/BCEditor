@@ -1,28 +1,18 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// Hello World in C Sharp\r\n",
-          "\r\n",
-          "using System;\r\n",
-          "class Program\r\n",
-          "{\r\n",
-          "   public static void Main()\r\n",
-          "   {\r\n",
-          "      Console.WriteLine(\"Hello, world!\");\r\n",
-          "      Console.ReadKey(true);\r\n",
-          "   }\r\n",
-          "}"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in C Sharp\r\n",
+      "\r\n",
+      "using System;\r\n",
+      "class Program\r\n",
+      "{\r\n",
+      "    public static void Main()\r\n",
+      "    {\r\n",
+      "        Console.WriteLine(\"Hello, world!\");\r\n",
+      "        Console.ReadKey(true);\r\n",
+      "    }\r\n",
+      "}"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -158,7 +148,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

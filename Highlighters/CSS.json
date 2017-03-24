@@ -1,21 +1,11 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "/* Hello World in CSS */\r\n",
-          "body:before {\r\n",
-          "   content: \"Hello, world!\";\r\n",
-          "}"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "/* Hello World in CSS */\r\n",
+      "body:before {\r\n",
+      "    content: \"Hello, world!\";\r\n",
+      "}"
+    ],
     "MainRules": {
       "Name": "CSS",
       "Attributes": {
@@ -41,6 +31,106 @@
             "TokenRange": {
               "Open": "\"",
               "Close": "\""
+            }
+          },
+          {
+            "Type": "String",
+            "Attributes": {
+              "Element": "String"
+            },
+            "TokenRange": {
+              "Open": "'",
+              "Close": "'"
+            }
+          },
+          {
+            "Type": "String",
+            "Attributes": {
+              "Element": "String"
+            },
+            "TokenRange": {
+              "Open": "(",
+              "Close": ")"
+            },
+            "SubRules": {
+              "Range": [
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "TokenRange": {
+                    "Open": "\"",
+                    "Close": "\""
+                  }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "TokenRange": {
+                    "Open": "'",
+                    "Close": "'"
+                  }
+                }
+              ],
+              "KeyList": [
+                {
+                  "Type": "Symbol",
+                  "Words": [
+                    ")"
+                  ],
+                  "Attributes": {
+                    "Element": "Symbol"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "Type": "String",
+            "Attributes": {
+              "Element": "String"
+            },
+            "TokenRange": {
+              "Open": "[",
+              "Close": "]"
+            },
+            "SubRules": {
+              "Range": [
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "TokenRange": {
+                    "Open": "\"",
+                    "Close": "\""
+                  }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "TokenRange": {
+                    "Open": "'",
+                    "Close": "'"
+                  }
+                }
+              ],
+              "KeyList": [
+                {
+                  "Type": "Symbol",
+                  "Words": [
+                    "]"
+                  ],
+                  "Attributes": {
+                    "Element": "Symbol"
+                  }
+                }
+              ]
             }
           },
           {
@@ -121,6 +211,130 @@
                   "Attributes": {
                     "Element": "String"
                   },
+                  "TokenRange": {
+                    "Open": "(",
+                    "Close": ")"
+                  },
+                  "SubRules": {
+                    "Range": [
+                      {
+                        "Type": "String",
+                        "Attributes": {
+                          "Element": "String"
+                        },
+                        "TokenRange": {
+                          "Open": "\"",
+                          "Close": "\""
+                        }
+                      },
+                      {
+                        "Type": "String",
+                        "Attributes": {
+                          "Element": "String"
+                        },
+                        "TokenRange": {
+                          "Open": "'",
+                          "Close": "'"
+                        }
+                      }
+                    ],
+                    "KeyList": [
+                      {
+                        "Type": "Symbol",
+                        "Words": [
+                          ")"
+                        ],
+                        "Attributes": {
+                          "Element": "Symbol"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "TokenRange": {
+                    "Open": "[",
+                    "Close": "]"
+                  },
+                  "SubRules": {
+                    "Range": [
+                      {
+                        "Type": "String",
+                        "Attributes": {
+                          "Element": "String"
+                        },
+                        "TokenRange": {
+                          "Open": "\"",
+                          "Close": "\""
+                        }
+                      },
+                      {
+                        "Type": "String",
+                        "Attributes": {
+                          "Element": "String"
+                        },
+                        "TokenRange": {
+                          "Open": "'",
+                          "Close": "'"
+                        }
+                      }
+                    ],
+                    "KeyList": [
+                      {
+                        "Type": "Symbol",
+                        "Words": [
+                          "]"
+                        ],
+                        "Attributes": {
+                          "Element": "Symbol"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "TokenRange": {
+                    "Open": "\"",
+                    "Close": "\""
+                  }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
+                  "TokenRange": {
+                    "Open": "'",
+                    "Close": "'"
+                  }
+                },
+                {
+                  "Type": "Method",
+                  "Attributes": {
+                    "Element": "MethodName"
+                  },
+                  "Properties": {
+                    "CloseParent": true,
+                    "CloseOnTerm": true,
+                    "CloseOnEndOfLine": true
+                  },
+                  "TokenRange": {
+                    "Open": "."
+                  }
+                },
+                {
+                  "Type": "String",
+                  "Attributes": {
+                    "Element": "String"
+                  },
                   "Properties": {
                     "AlternativeClose": [
                       "}"
@@ -132,6 +346,51 @@
                   },
                   "SubRules": {
                     "Range": [
+                      {
+                        "Type": "String",
+                        "Attributes": {
+                          "Element": "String"
+                        },
+                        "TokenRange": {
+                          "Open": "(",
+                          "Close": ")"
+                        },
+                        "SubRules": {
+                          "Range": [
+                            {
+                              "Type": "String",
+                              "Attributes": {
+                                "Element": "String"
+                              },
+                              "TokenRange": {
+                                "Open": "\"",
+                                "Close": "\""
+                              }
+                            },
+                            {
+                              "Type": "String",
+                              "Attributes": {
+                                "Element": "String"
+                              },
+                              "TokenRange": {
+                                "Open": "'",
+                                "Close": "'"
+                              }
+                            }
+                          ],
+                          "KeyList": [
+                            {
+                              "Type": "Symbol",
+                              "Words": [
+                                ")"
+                              ],
+                              "Attributes": {
+                                "Element": "Symbol"
+                              }
+                            }
+                          ]
+                        }
+                      },
                       {
                         "Type": "HexNumber",
                         "Attributes": {
@@ -155,11 +414,8 @@
                           "<",
                           ">",
                           "=",
-                          "/",
                           "*",
-                          ".",
                           ",",
-                          "-",
                           "+",
                           "(",
                           ")",
@@ -206,7 +462,6 @@
                   "Type": "Symbol",
                   "Words": [
                     ":",
-                    "-",
                     "}"
                   ],
                   "Attributes": {
@@ -236,11 +491,8 @@
               "<",
               ">",
               "=",
-              "/",
               "*",
-              ".",
               ",",
-              "-",
               "+",
               "(",
               ")",

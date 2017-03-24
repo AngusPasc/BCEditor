@@ -1,29 +1,19 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "' Hello World in Visual Basic\r\n",
-          "\r\n",
-          "Imports System\r\n",
-          "\r\n",
-          "' This module houses the application's entry point.\r\n",
-          "Public Module modmain\r\n",
-          "   ' Main is the application's entry point.\r\n",
-          "   Sub Main()\r\n",
-          "      ' Write text to the console.\r\n",
-          "      Console.WriteLine (\"Hello, world!\")\r\n",
-          "   End Sub\r\n",
-          "End Module"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "' Hello World in Visual Basic\r\n",
+      "\r\n",
+      "Imports System\r\n",
+      "\r\n",
+      "' This module houses the application's entry point.\r\n",
+      "Public Module modmain\r\n",
+      "    ' Main is the application's entry point.\r\n",
+      "    Sub Main()\r\n",
+      "        ' Write text to the console.\r\n",
+      "        Console.WriteLine (\"Hello, world!\")\r\n",
+      "    End Sub\r\n",
+      "End Module"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -72,7 +62,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

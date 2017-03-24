@@ -1,20 +1,10 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "<?php\r\n",
-          "  echo \"Hello World!\";\r\n",
-          "?>"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "<?php\r\n",
+      "  echo \"Hello World!\";\r\n",
+      "?>"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -215,7 +205,7 @@
                   "Attributes": {
                     "Element": "Number"
                   },
-                  "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuvwyzåäö",
+                  "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuvwyzÃ¥Ã¤Ã¶",
                   "Properties": {
                     "CloseOnTerm": true,
                     "CloseOnEndOfLine": true

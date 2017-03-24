@@ -1,25 +1,15 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "05.01.2017",
-        "Sample": [
-          "// Hello World in D\r\n",
-          "\r\n",
-          "import std.stdio\r\n",
-          "\r\n",
-          "void main()\r\n",
-          "{\r\n",
-          "   writeln(\"Hello, world!\");\r\n",
-          "}"
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in D\r\n",
+      "\r\n",
+      "import std.stdio\r\n",
+      "\r\n",
+      "void main()\r\n",
+      "{\r\n",
+      "    writeln(\"Hello, world!\");\r\n",
+      "}"
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -155,7 +145,7 @@
             "Attributes": {
               "Element": "Number"
             },
-            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzåäö",
+            "Delimiters": "*/+-=\\|&()[]{}`~!@,$%^?:;'\".><#'ghijklmnopqrstuwvyzÃ¥Ã¤Ã¶",
             "Properties": {
               "CloseOnTerm": true,
               "CloseOnEndOfLine": true

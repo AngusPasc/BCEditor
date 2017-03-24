@@ -1,23 +1,13 @@
 {
   "Highlighter": {
-    "Info": {
-      "General": {
-        "Version": "2.0.0",
-        "Date": "10.01.2017",
-        "Sample": [
-          "// Hello World in Pascal\r\n",
-          "\r\n",
-          "program HelloWorld;\r\n",
-          "begin\r\n",
-          "  writeln('Hello, world!');\r\n",
-          "end."
-        ]
-      },
-      "Author": {
-        "Name": "Lasse Rautiainen",
-        "Mail": ""
-      }
-    },
+    "Sample": [
+      "// Hello World in Pascal\r\n",
+      "\r\n",
+      "program HelloWorld;\r\n",
+      "begin\r\n",
+      "  writeln('Hello, world!');\r\n",
+      "end."
+    ],
     "MainRules": {
       "Attributes": {
         "Element": "Editor"
@@ -82,26 +72,31 @@
           {
             "Type": "Method",
             "Attributes": {
-              "Element": "Method"
+              "Element": "MethodName"
+            },
+            "Properties": {
+              "AlternativeClose": [
+                "(",
+                "'",
+                "/",
+                "{",
+                ";"
+              ]
             },
             "TokenRange": {
-              "Open": "function"
+              "Open": "function",
+              "Close": ":"
             },
             "SubRules": {
-              "Range": [
+              "KeyList": [
                 {
-                  "Type": "MethodName",
+                  "Type": "Symbol",
+                  "Words": [
+                    ":",
+                    "("
+                  ],
                   "Attributes": {
-                    "Element": "MethodName"
-                  },
-                  "Delimiters": ":(;",
-                  "Properties": {
-                    "CloseParent": true,
-                    "CloseOnTerm": true,
-                    "SkipWhitespace": true
-                  },
-                  "TokenRange": {
-                    "Open": " "
+                    "Element": "Symbol"
                   }
                 }
               ]
@@ -110,26 +105,30 @@
           {
             "Type": "Method",
             "Attributes": {
-              "Element": "Method"
+              "Element": "MethodName"
+            },
+            "Properties": {
+              "AlternativeClose": [
+                "(",
+                "'",
+                "/",
+                "{"
+              ]
             },
             "TokenRange": {
-              "Open": "procedure"
+              "Open": "procedure",
+              "Close": ";"
             },
             "SubRules": {
-              "Range": [
+              "KeyList": [
                 {
-                  "Type": "MethodName",
+                  "Type": "Symbol",
+                  "Words": [
+                    ";",
+                    "("
+                  ],
                   "Attributes": {
-                    "Element": "MethodName"
-                  },
-                  "Delimiters": "(;",
-                  "Properties": {
-                    "CloseParent": true,
-                    "CloseOnTerm": true,
-                    "SkipWhitespace": true
-                  },
-                  "TokenRange": {
-                    "Open": " "
+                    "Element": "Symbol"
                   }
                 }
               ]
@@ -533,8 +532,8 @@
             "CloseToken": "$ENDREGION",
             "Properties": {
               "OpenTokenEnd": "}",
-										 "ShowGuideLine": false,
-										 "BeginWithBreakChar": true
+              "ShowGuideLine": false,
+              "BeginWithBreakChar": true
             }
           }
         ]
