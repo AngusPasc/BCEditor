@@ -178,6 +178,7 @@ type
   TBCEditorDisplayPosition = record
     Column: Integer;
     Row: Integer;
+    class operator Equal(a, b: TBCEditorDisplayPosition): Boolean;
     function ToString(): string; inline;
   end;
 
@@ -383,6 +384,11 @@ begin
 end;
 
 { TBCEditorDisplayPosition ****************************************************}
+
+class operator TBCEditorDisplayPosition.Equal(a, b: TBCEditorDisplayPosition): Boolean;
+begin
+  Result := (a.Column = b.Column) and (a.Row = b.Row);
+end;
 
 function TBCEditorDisplayPosition.ToString(): string;
 begin

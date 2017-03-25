@@ -256,6 +256,10 @@ implementation {***************************************************************}
 uses
   Math, StrUtils;
 
+resourcestring
+  SIndexInLineBreak = 'Index inside LineBreak';
+  SIndexIsNegative = 'Index is negative';
+
 function HasLineBreak(const Text: string): Boolean;
 var
   LEndPos: PChar;
@@ -535,23 +539,29 @@ end;
 function TBCEditorLines.CharIndexToPosition(const ACharIndex: Integer;
   const ARelativePosition: TBCEditorTextPosition): TBCEditorTextPosition;
 var
-  LCharIndex: Integer;
   LLength: Integer;
   LLineBreakLength: Integer;
 begin
   Assert((BOFTextPosition <= ARelativePosition) and (ARelativePosition <= EOFTextPosition) or (ACharIndex = 0) and (Count = 0));
-  LCharIndex := Max(0, ACharIndex);
+
+  LLength := ACharIndex;
+
+  if (LLength < 0) then
+    raise ERangeError.Create(SIndexIsNegative);
 
   Result := ARelativePosition;
 
-  if ((Result.Char - 1) + LCharIndex <= Length(Lines[Result.Line].Text)) then
-    Inc(Result.Char, LCharIndex)
+  if (LLength <= Length(Lines[Result.Line].Text) - (Result.Char - 1)) then
+    Inc(Result.Char, LLength)
   else
   begin
     LLineBreakLength := Length(LineBreak);
 
-    LLength := LCharIndex - (Length(Lines[Result.Line].Text) - (Result.Char - 1)) - LLineBreakLength;
+    Dec(LLength, (Length(Lines[Result.Line].Text) - (Result.Char - 1)) + LLineBreakLength);
     Inc(Result.Line);
+
+    if (LLength < 0) then
+      raise ERangeError.Create(SIndexInLineBreak);
 
     while ((Result.Line < Count) and (LLength >= Length(Lines[Result.Line].Text) + LLineBreakLength)) do
     begin
@@ -560,7 +570,7 @@ begin
     end;
 
     if (LLength > Length(Lines[Result.Line].Text)) then
-      raise ERangeError.CreateFmt('Character index out of bounds (%d / %d, %d / %d)', [LCharIndex, Length(Text), LLength, Length(Lines[Result.Line].Text)]);
+      raise ERangeError.CreateFmt(SIndexInLineBreak+ ' (%d / %d, %d / %d, %d / %d)', [ACharIndex, Length(Text), LLength, Length(Lines[Result.Line].Text), Result.Line, Count]);
 
     Result.Char := 1 + LLength;
   end;
@@ -1047,6 +1057,8 @@ begin
         SelEndPosition := TextPosition(SelEndPosition.Char, SelEndPosition.Line + 1);
   end;
 
+  if (UpdateCount > 0) then
+    Include(FState, lsTextChanged);
   if (Assigned(OnInserted)) then
     OnInserted(Self, ALine);
 end;
@@ -1178,13 +1190,10 @@ begin
   end;
 
   if ((ALine = 0) and (Count = 0)) then
-  begin
     if ((loTrimTrailingSpaces in Options) and not (lsLoading in State) and (LLength < Length(AText))) then
       DoInsert(0, Copy(AText, 1, LLength))
     else
-      DoInsert(0, AText);
-    LModified := True;
-  end
+      DoInsert(0, AText)
   else
   begin
     Assert((0 <= ALine) and (ALine < Count));
@@ -1215,14 +1224,16 @@ begin
         FMaxLengthLine := ALine
       else if (ALine = FMaxLengthLine) then
         FMaxLengthLine := -1;
-  end;
 
-  if (LModified) then
-  begin
-    if (UpdateCount > 0) then
-      Include(FState, lsTextChanged);
-    if (Assigned(OnUpdated)) then
-      OnUpdated(Self, ALine);
+    CaretPosition := TextPosition(1 + LLength, ALine);
+
+    if (LModified) then
+    begin
+      if (UpdateCount > 0) then
+        Include(FState, lsTextChanged);
+      if (Assigned(OnUpdated)) then
+        OnUpdated(Self, ALine);
+    end;
   end;
 end;
 
@@ -1778,7 +1789,7 @@ var
   LSelBeginPosition: TBCEditorTextPosition;
   LSelEndPosition: TBCEditorTextPosition;
 begin
-  UndoList.BeginUpdate();
+  BeginUpdate();
   try
     if (AText = '') then
       Result := APosition
@@ -1811,7 +1822,7 @@ begin
     if (SelMode = smNormal) then
       CaretPosition := Result;
   finally
-    UndoList.EndUpdate();
+    EndUpdate();
     RedoList.Clear();
   end;
 end;
