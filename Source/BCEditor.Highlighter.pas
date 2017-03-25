@@ -1521,7 +1521,7 @@ begin
       else
         LFindTokenNode := nil;
       LPreviousPosition := AIndex;
-      while ((LCurrentTokenNode.NextNodes.Count > 0) and (AIndex < Length(ALine))) do
+      while ((LCurrentTokenNode.NextNodes.Count > 0) and (AIndex + 1 < Length(ALine))) do
       begin
         Inc(AIndex);
         LCurrentTokenNode := LCurrentTokenNode.NextNodes.FindNode(ACurrentRange.CaseFunct(ALine[1 + AIndex]));
