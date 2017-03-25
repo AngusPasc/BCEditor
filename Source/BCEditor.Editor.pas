@@ -248,7 +248,7 @@ type
     procedure CaretChanged(ASender: TObject);
     procedure CheckIfAtMatchingKeywords;
     procedure ClearCodeFolding;
-    function ClientToDisplay(const X, Y: Integer): TBCEditorDisplayPosition;
+    function ClientToDisplay(const X, Y: Integer): TBCEditorDisplayPosition; inline;
     function CodeFoldingCollapsableFoldRangeForLine(const ALine: Integer): TBCEditorCodeFolding.TRanges.TRange;
     procedure CodeFoldingCollapse(AFoldRange: TBCEditorCodeFolding.TRanges.TRange);
     procedure CodeFoldingExpand(AFoldRange: TBCEditorCodeFolding.TRanges.TRange);
@@ -10210,12 +10210,14 @@ begin
   if (X < FLeftMarginWidth) then
     Result := DisplayPosition(1, ARow)
   else if (Rows.Count = 0) then
-    Result := DisplayPosition((X - FLeftMarginWidth) div FPaintHelper.CharWidth, ARow)
+    Result := DisplayPosition((X - FLeftMarginWidth) div FPaintHelper.CharWidth, 1)
   else
   begin
+    Result := DisplayPosition(1, ARow);
+
     LLine := Rows[ARow - 1].Line;
 
-    if (ALineText = '') then
+    if (ALineText <> '') then
       LLineText := ALineText
     else
       LLineText := Lines.ExpandedStrings[LLine];
