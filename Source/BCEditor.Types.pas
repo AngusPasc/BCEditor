@@ -368,7 +368,7 @@ end;
 
 function Point(const APosition: TBCEditorTextPosition): TPoint;
 begin
-  Result.X := APosition.Char - 1;
+  Result.X := APosition.Char;
   Result.Y := APosition.Line;
 end;
 
@@ -380,7 +380,7 @@ end;
 
 function TextPosition(const APos: TPoint): TBCEditorTextPosition;
 begin
-  Result.Char := APos.X + 1;
+  Result.Char := APos.X;
   Result.Line := APos.Y;
 end;
 

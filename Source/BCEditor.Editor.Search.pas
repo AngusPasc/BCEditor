@@ -621,7 +621,7 @@ var
         (LSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LSearchItem^.EndTextPosition.Char <= ATextPosition.Char) )
       and
       ( (LNextSearchItem^.EndTextPosition.Line > ATextPosition.Line) or
-        (LNextSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LNextSearchItem^.EndTextPosition.Char > ATextPosition.Char) )
+        (LNextSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LNextSearchItem^.EndTextPosition.Char > ATextPosition.Char))
   end;
 
   function IsSearchItemGreaterThanTextPosition: Boolean;

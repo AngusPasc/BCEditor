@@ -16,7 +16,7 @@ type
     FBitmapBuffer: Graphics.TBitmap;
     FCaseSensitive: Boolean;
     FCompletionProposal: TBCEditorCompletionProposal;
-    FCompletionStart: Integer;
+    FCompletionStartChar: Integer;
     FCurrentString: string;
     FFiltered: Boolean;
     FItemHeight: Integer;
@@ -276,29 +276,29 @@ end;
 
 function TBCEditorCompletionProposalPopupWindow.GetCurrentInput: string;
 var
-  LIndex: Integer;
+  LChar: Integer;
   LLineText: string;
   LTextCaretPosition: TBCEditorTextPosition;
 begin
   Result := '';
 
-  LTextCaretPosition := TextPosition(TCustomBCEditor(Editor).CaretPos.X + 1, TCustomBCEditor(Editor).CaretPos.Y);
+  LTextCaretPosition := TextPosition(TCustomBCEditor(Editor).CaretPos);
 
   LLineText := TCustomBCEditor(Editor).Lines[LTextCaretPosition.Line];
-  LIndex := LTextCaretPosition.Char - 1;
-  if LIndex <= Length(LLineText) then
+  LChar := LTextCaretPosition.Char;
+  if LChar < Length(LLineText) then
   begin
     FAdjustCompletionStart := False;
-    while (LIndex > 0) and (LLineText[LIndex] > BCEDITOR_SPACE_CHAR) and not TCustomBCEditor(Editor).IsWordBreakChar(LLineText[LIndex]) do
-      Dec(LIndex);
+    while (LChar >= 0) and (LLineText[1 + LChar] > BCEDITOR_SPACE_CHAR) and not TCustomBCEditor(Editor).IsWordBreakChar(LLineText[1 + LChar]) do
+      Dec(LChar);
 
-    FCompletionStart := LIndex + 1;
-    Result := Copy(LLineText, FCompletionStart, LTextCaretPosition.Char - FCompletionStart);
+    FCompletionStartChar := LChar;
+    Result := Copy(LLineText, 1 + FCompletionStartChar, LTextCaretPosition.Char - FCompletionStartChar);
   end
   else
   begin
     FAdjustCompletionStart := True;
-    FCompletionStart := LTextCaretPosition.Char;
+    FCompletionStartChar := LTextCaretPosition.Char;
   end;
 end;
 
@@ -367,17 +367,15 @@ begin
     BeginUpdate;
     Lines.BeginUpdate();
     try
-      LTextPosition := TextPosition(CaretPos.X + 1, CaretPos.Y);
-      if FAdjustCompletionStart then
-        FCompletionStart := TextPosition(FCompletionStart, LTextPosition.Line).Char;
+      LTextPosition := TextPosition(CaretPos);
 
       if not SelectionAvailable then
       begin
-        SelectionBeginPosition := TextPosition(FCompletionStart, LTextPosition.Line);
+        SelectionBeginPosition := TextPosition(FCompletionStartChar, LTextPosition.Line);
         if AEndToken = BCEDITOR_NONE_CHAR then
         begin
           LLine := Lines[LTextPosition.Line];
-          if (Length(LLine) >= LTextPosition.Char) and IsWordBreakChar(LLine[LTextPosition.Char]) then
+          if (LTextPosition.Char < Length(LLine)) and IsWordBreakChar(LLine[1 + LTextPosition.Char]) then
             SelectionEndPosition := LTextPosition
           else
             SelectionEndPosition := TextPosition(WordEnd.Char, LTextPosition.Line)
@@ -402,7 +400,7 @@ begin
         SetFocus;
 
       EnsureCaretPositionVisible;
-      CaretPos := Point(SelectionEndPosition.Char - 1, SelectionEndPosition.Line);
+      CaretPos := Point(SelectionEndPosition);
       SelectionBeginPosition := TextPosition(CaretPos.X + 1, CaretPos.Y);
     finally
       Lines.EndUpdate();
@@ -446,9 +444,9 @@ begin
     VK_RIGHT:
       with TCustomBCEditor(Editor) do
       begin
-        LTextCaretPosition := TextPosition(CaretPos.X + 1, CaretPos.Y);
-        if LTextCaretPosition.Char <= Length(Lines[LTextCaretPosition.Line]) then
-          LChar := Lines[LTextCaretPosition.Line][LTextCaretPosition.Char]
+        LTextCaretPosition := TextPosition(CaretPos);
+        if LTextCaretPosition.Char < Length(Lines[LTextCaretPosition.Line]) then
+          LChar := Lines[LTextCaretPosition.Line][1 + LTextCaretPosition.Char]
         else
           LChar := BCEDITOR_SPACE_CHAR;
 
