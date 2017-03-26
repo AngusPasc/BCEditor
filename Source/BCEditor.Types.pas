@@ -59,7 +59,7 @@ type
   TBCEditorScrollOption = (
     soHalfPage, { When scrolling with page-up and page-down commands, only scroll a half page at a time }
     soHintFollows, { The scroll hint follows the mouse when scrolling vertically }
-    soPastEndOfFileMarker, { Allows the cursor to go past the end of file marker }
+    soPastEndOfFile, { Allows the cursor to go past the end of file }
     soPastEndOfLine, { Allows the cursor to go past the last character into the white space at the end of a line }
     soShowVerticalScrollHint, { Shows a hint of the visible line numbers when scrolling vertically }
     soWheelClickMove { Scrolling by mouse move after wheel click. }

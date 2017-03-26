@@ -29,7 +29,7 @@ type
     published
       property Background: TColor read FBackground write FBackground default clLeftMarginBackground;
       property BookmarkBackground: TColor read FBookmarkBackground write FBookmarkBackground default clNone;
-      property BookmarkPanelBackground: TColor read FBookmarkPanelBackground write FBookmarkPanelBackground default clLeftMarginBackground;
+      property BookmarkPanelBackground: TColor read FBookmarkPanelBackground write FBookmarkPanelBackground default clBtnFace;
       property Border: TColor read FBorder write FBorder default clLeftMarginBackground;
       property LineStateModified: TColor read FLineStateModified write FLineStateModified default clYellow;
       property LineStateNormal: TColor read FLineStateNormal write FLineStateNormal default clLime;
@@ -228,7 +228,7 @@ begin
 
   FBackground := clLeftMarginBackground;
   FBookmarkBackground := clNone;
-  FBookmarkPanelBackground := clLeftMarginBackground;
+  FBookmarkPanelBackground := clBtnFace;
   FBorder := clLeftMarginBackground;
   FLineStateModified := clYellow;
   FLineStateNormal := clLime;
