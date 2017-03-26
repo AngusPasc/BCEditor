@@ -17,18 +17,18 @@ type
       FBackground: TColor;
       FBookmark: TColor;
       FOnChange: TNotifyEvent;
-      FVisibleLines: TColor;
+      FVisibleRows: TColor;
       procedure DoChange;
       procedure SetBackground(const AValue: TColor);
       procedure SetBookmark(const AValue: TColor);
-      procedure SetVisibleLines(const AValue: TColor);
+      procedure SetVisibleRows(const AValue: TColor);
     public
       constructor Create;
       procedure Assign(ASource: TPersistent); override;
     published
       property Background: TColor read FBackground write SetBackground default clNone;
       property Bookmark: TColor read FBookmark write SetBookmark default clMinimapBookmark;
-      property VisibleLines: TColor read FVisibleLines write SetVisibleLines default clMinimapVisibleLines;
+      property VisibleRows: TColor read FVisibleRows write SetVisibleRows default clMinimapVisibleLines;
       property OnChange: TNotifyEvent read FOnChange write FOnChange;
     end;
 
@@ -62,9 +62,9 @@ type
     FIndicator: TBCEditorMinimap.TIndicator;
     FOnChange: TNotifyEvent;
     FOptions: TOptions;
-    FTopLine: Integer;
+    FTopRow: Integer;
     FVisible: Boolean;
-    FVisibleLines: Integer;
+    FVisibleRows: Integer;
     FWidth: Integer;
     procedure DoChange;
     procedure SetAlign(const AValue: TBCEditorMinimapAlign);
@@ -82,8 +82,8 @@ type
     property CharHeight: Integer read FCharHeight write FCharHeight;
     property Clicked: Boolean read FClicked write FClicked;
     property Dragging: Boolean read FDragging write FDragging;
-    property TopLine: Integer read FTopLine write FTopLine default 1;
-    property VisibleLines: Integer read FVisibleLines write FVisibleLines;
+    property TopRow: Integer read FTopRow write FTopRow default 1;
+    property VisibleRows: Integer read FVisibleRows write FVisibleRows;
   published
     property Align: TBCEditorMinimapAlign read FAlign write SetAlign default maRight;
     property Colors: TBCEditorMinimap.TColors read FColors write SetColors;
@@ -109,7 +109,7 @@ begin
 
   FBackground := clNone;
   FBookmark := clMinimapBookmark;
-  FVisibleLines := clMinimapVisibleLines;
+  FVisibleRows := clMinimapVisibleLines;
 end;
 
 procedure TBCEditorMinimap.TColors.Assign(ASource: TPersistent);
@@ -119,7 +119,7 @@ begin
   begin
     Self.FBackground := FBackground;
     Self.FBookmark := FBookmark;
-    Self.FVisibleLines := FVisibleLines;
+    Self.FVisibleRows := FVisibleRows;
     Self.DoChange;
   end
   else
@@ -150,11 +150,11 @@ begin
   end;
 end;
 
-procedure TBCEditorMinimap.TColors.SetVisibleLines(const AValue: TColor);
+procedure TBCEditorMinimap.TColors.SetVisibleRows(const AValue: TColor);
 begin
-  if FVisibleLines <> AValue then
+  if FVisibleRows <> AValue then
   begin
-    FVisibleLines := AValue;
+    FVisibleRows := AValue;
     DoChange;
   end;
 end;
@@ -226,7 +226,7 @@ begin
 
   FClicked := False;
 
-  FTopLine := 1;
+  FTopRow := 1;
 
   FIndicator := TBCEditorMinimap.TIndicator.Create;
   FColors := TBCEditorMinimap.TColors.Create;

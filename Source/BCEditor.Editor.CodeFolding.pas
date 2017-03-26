@@ -158,14 +158,14 @@ type
       TRange = class
       strict private
         FAllCodeFoldingRanges: TAllRanges;
-        FBeginLine: Integer;
         FCollapsed: Boolean;
         FCollapsedBy: Integer;
         FCollapseMarkRect: TRect;
-        FEndLine: Integer;
+        FFirstLine: Integer;
         FFoldRangeLevel: Integer;
         FIndentLevel: Integer;
         FIsExtraTokenFound: Boolean;
+        FLastLine: Integer;
         FParentCollapsed: Boolean;
         FRegionItem: TBCEditorCodeFolding.TRegion.TItem;
         FSubCodeFoldingRanges: TRanges;
@@ -179,14 +179,14 @@ type
         procedure SetParentCollapsedOfSubCodeFoldingRanges(AParentCollapsed: Boolean; ACollapsedBy: Integer);
         procedure Widen(LineCount: Integer);
         property AllCodeFoldingRanges: TAllRanges read FAllCodeFoldingRanges write FAllCodeFoldingRanges;
-        property BeginLine: Integer read FBeginLine write FBeginLine;
         property Collapsed: Boolean read FCollapsed write FCollapsed default False;
         property CollapsedBy: Integer read FCollapsedBy write FCollapsedBy;
         property CollapseMarkRect: TRect read FCollapseMarkRect write FCollapseMarkRect;
-        property EndLine: Integer read FEndLine write FEndLine;
+        property FirstLine: Integer read FFirstLine write FFirstLine;
         property FoldRangeLevel: Integer read FFoldRangeLevel write FFoldRangeLevel;
         property IndentLevel: Integer read FIndentLevel write FIndentLevel;
         property IsExtraTokenFound: Boolean read FIsExtraTokenFound write FIsExtraTokenFound default False;
+        property LastLine: Integer read FLastLine write FLastLine;
         property ParentCollapsed: Boolean read FParentCollapsed write FParentCollapsed;
         property RegionItem: TBCEditorCodeFolding.TRegion.TItem read FRegionItem write FRegionItem;
         property SubCodeFoldingRanges: TRanges read FSubCodeFoldingRanges;
@@ -572,7 +572,7 @@ end;
 
 function TBCEditorCodeFolding.TRanges.TRange.Collapsable: Boolean;
 begin
-  Result := (FBeginLine < FEndLine) or RegionItem.TokenEndIsPreviousLine and (FBeginLine = FEndLine);
+  Result := (FFirstLine < FLastLine) or RegionItem.TokenEndIsPreviousLine and (FFirstLine = FLastLine);
 end;
 
 constructor TBCEditorCodeFolding.TRanges.TRange.Create;
@@ -597,8 +597,8 @@ end;
 
 procedure TBCEditorCodeFolding.TRanges.TRange.MoveBy(LineCount: Integer);
 begin
-  Inc(FBeginLine, LineCount);
-  Inc(FEndLine, LineCount);
+  Inc(FFirstLine, LineCount);
+  Inc(FLastLine, LineCount);
 end;
 
 procedure TBCEditorCodeFolding.TRanges.TRange.MoveChildren(By: Integer);
@@ -645,7 +645,7 @@ end;
 
 procedure TBCEditorCodeFolding.TRanges.TRange.Widen(LineCount: Integer);
 begin
-  Inc(FEndLine, LineCount);
+  Inc(FLastLine, LineCount);
 end;
 
 { TBCEditorCodeFolding.TRanges ************************************************}
@@ -672,8 +672,8 @@ begin
   Result := TRange.Create;
   with Result do
   begin
-    BeginLine := ABeginLine;
-    EndLine := AEndLine;
+    FirstLine := ABeginLine;
+    LastLine := AEndLine;
     IndentLevel := AIndentLevel;
     FoldRangeLevel := AFoldRangeLevel;
     AllCodeFoldingRanges := AAllCodeFoldingRanges;
@@ -767,9 +767,9 @@ begin
     LFoldRange := GetItem(LIndex);
     if LFoldRange = AFoldRange then
       Continue;
-    if LFoldRange.BeginLine > AFoldRange.EndLine then
+    if LFoldRange.FirstLine > AFoldRange.LastLine then
       Break;
-    if (LFoldRange.EndLine > AFoldRange.EndLine) and (LFoldRange.EndLine <> AFoldRange.EndLine) then
+    if (LFoldRange.LastLine > AFoldRange.LastLine) and (LFoldRange.LastLine <> AFoldRange.LastLine) then
       LFoldRange.ParentCollapsed := True;
   end;
 end;

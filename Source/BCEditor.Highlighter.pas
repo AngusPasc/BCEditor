@@ -2000,7 +2000,7 @@ begin
         LeftMargin.Colors.LineStateNormal := StringToColorDef(LColorsObject['LeftMarginLineStateNormal'].Value, LeftMargin.Colors.LineStateNormal);
         Minimap.Colors.Background := StringToColorDef(LColorsObject['MinimapBackground'].Value, Minimap.Colors.Background);
         Minimap.Colors.Bookmark := StringToColorDef(LColorsObject['MinimapBookmark'].Value, Minimap.Colors.Bookmark);
-        Minimap.Colors.VisibleLines := StringToColorDef(LColorsObject['MinimapVisibleLines'].Value, Minimap.Colors.VisibleLines);
+        Minimap.Colors.VisibleRows := StringToColorDef(LColorsObject['MinimapVisibleLines'].Value, Minimap.Colors.VisibleRows);
         MatchingPair.Colors.Matched := StringToColorDef(LColorsObject['MatchingPairMatched'].Value, MatchingPair.Colors.Matched);
         MatchingPair.Colors.Underline := StringToColorDef(LColorsObject['MatchingPairUnderline'].Value, MatchingPair.Colors.Underline);
         MatchingPair.Colors.Unmatched := StringToColorDef(LColorsObject['MatchingPairUnmatched'].Value, MatchingPair.Colors.Unmatched);

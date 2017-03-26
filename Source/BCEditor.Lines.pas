@@ -248,17 +248,17 @@ type
   end;
 
 const
-  BOFTextPosition: TBCEditorTextPosition = (Char: 1; Line: 0);
+  BOFTextPosition: TBCEditorTextPosition = (Char: 0; Line: 0);
   InvalidTextPosition: TBCEditorTextPosition = (Char: -1; Line: -1);
 
 implementation {***************************************************************}
 
 uses
-  Math, StrUtils;
+  Math, StrUtils, SysConst;
 
 resourcestring
-  SIndexInLineBreak = 'Index inside LineBreak';
-  SIndexIsNegative = 'Index is negative';
+  SCharIndexInLineBreak = 'Character index is inside line break';
+  SCharIndexIsNegative = 'Character index is negative';
 
 function HasLineBreak(const Text: string): Boolean;
 var
@@ -547,7 +547,7 @@ begin
   LLength := ACharIndex;
 
   if (LLength < 0) then
-    raise ERangeError.Create(SIndexIsNegative);
+    raise ERangeError.Create(SCharIndexIsNegative);
 
   Result := ARelativePosition;
 
@@ -561,7 +561,7 @@ begin
     Inc(Result.Line);
 
     if (LLength < 0) then
-      raise ERangeError.Create(SIndexInLineBreak);
+      raise ERangeError.Create(SCharIndexInLineBreak);
 
     while ((Result.Line < Count) and (LLength >= Length(Lines[Result.Line].Text) + LLineBreakLength)) do
     begin
@@ -570,7 +570,7 @@ begin
     end;
 
     if (LLength > Length(Lines[Result.Line].Text)) then
-      raise ERangeError.CreateFmt(SIndexInLineBreak+ ' (%d / %d, %d / %d, %d / %d)', [ACharIndex, Length(Text), LLength, Length(Lines[Result.Line].Text), Result.Line, Count]);
+      raise ERangeError.CreateFmt(SCharIndexOutOfBounds + ' (%d, %d / %d, %d / %d)', [ACharIndex, Length(Text), LLength, Length(Lines[Result.Line].Text), Result.Line, Count]);
 
     Result.Char := 1 + LLength;
   end;

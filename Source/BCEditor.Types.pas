@@ -179,6 +179,7 @@ type
     Column: Integer;
     Row: Integer;
     class operator Equal(a, b: TBCEditorDisplayPosition): Boolean;
+    class operator NotEqual(a, b: TBCEditorDisplayPosition): Boolean;
     function ToString(): string; inline;
   end;
 
@@ -388,6 +389,11 @@ end;
 class operator TBCEditorDisplayPosition.Equal(a, b: TBCEditorDisplayPosition): Boolean;
 begin
   Result := (a.Column = b.Column) and (a.Row = b.Row);
+end;
+
+class operator TBCEditorDisplayPosition.NotEqual(a, b: TBCEditorDisplayPosition): Boolean;
+begin
+  Result := (a.Column <> b.Column) or (a.Row <> b.Row);
 end;
 
 function TBCEditorDisplayPosition.ToString(): string;
