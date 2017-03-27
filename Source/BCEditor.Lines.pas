@@ -15,7 +15,7 @@ type
 
     TLineState = (lsLoaded, lsModified, lsSaved);
 
-    TOption = (loColumns, loTrimTrailingSpaces, loUndoGrouped, loUndoAfterLoad, loUndoAfterSave);
+    TOption = (loColumns, loTrimTrailingLines, loTrimTrailingSpaces, loUndoGrouped, loUndoAfterLoad, loUndoAfterSave);
     TOptions = set of TOption;
 
     TRange = Pointer;
@@ -700,6 +700,20 @@ begin
   try
     DoDelete(ALine);
 
+    if ((ALine = Count - 1) and (loTrimTrailingLines in Options)) then
+      while ((Count > 0) and (Lines[Count - 1].Text = '')) do
+        if (Count = 1) then
+        begin
+          LBeginPosition := BOFPosition;
+          LText := Lines[Count - 1].Text + LText;
+          LUndoType := utClear;
+        end
+        else
+        begin
+          LBeginPosition := EOLPosition[Count - 2];
+          LText := LineBreak + Lines[Count - 1].Text + LText;
+        end;
+
     UndoList.PushItem(LUndoType, LCaretPosition,
       LSelBeginPosition, LSelEndPosition, SelMode,
       LBeginPosition, InvalidPosition, LText);
@@ -775,6 +789,7 @@ var
   LCaretPosition: TBCEditorTextPosition;
   LBeginText: TBCEditorTextPosition;
   LEndText: TBCEditorTextPosition;
+  LEndPosition: TBCEditorTextPosition;
   LInsertBeginPosition: TBCEditorTextPosition;
   LInsertEndPosition: TBCEditorTextPosition;
   LLine: Integer;
@@ -793,6 +808,7 @@ begin
       LCaretPosition := CaretPosition;
       LSelBeginPosition := SelBeginPosition;
       LSelEndPosition := SelEndPosition;
+      LEndPosition := AEndPosition;
 
       if (ABeginPosition.Char > Length(Lines[ABeginPosition.Line].Text)) then
       begin
@@ -805,15 +821,29 @@ begin
           LInsertBeginPosition, LInsertEndPosition);
 
         Assert(LInsertEndPosition = ABeginPosition);
+      end
+      else if ((loTrimTrailingLines in Options)
+        and (Trim(TextBetween[LEndPosition, EOFPosition]) = '')) then
+        LEndPosition := EOFPosition;
+
+      LText := GetTextBetween(ABeginPosition, LEndPosition);
+
+      if ((ABeginPosition = BOFPosition) and (LEndPosition = EOFPosition)) then
+      begin
+        InternalClear(False);
+
+        UndoList.PushItem(utClear, LCaretPosition,
+          LSelBeginPosition, LSelEndPosition, SelMode,
+          ABeginPosition, InvalidPosition, LText);
+      end
+      else
+      begin
+        DoDeleteText(ABeginPosition, LEndPosition);
+
+        UndoList.PushItem(utDelete, LCaretPosition,
+          LSelBeginPosition, LSelEndPosition, SelMode,
+          ABeginPosition, InvalidPosition, LText);
       end;
-
-      LText := GetTextBetween(ABeginPosition, AEndPosition);
-
-      DoDeleteText(ABeginPosition, AEndPosition);
-
-      UndoList.PushItem(utDelete, LCaretPosition,
-        LSelBeginPosition, LSelEndPosition, SelMode,
-        ABeginPosition, InvalidPosition, LText);
     end
     else
     begin
@@ -856,11 +886,7 @@ begin
     end;
 
     if (SelMode = smNormal) then
-    begin
       CaretPosition := ABeginPosition;
-      SelBeginPosition := CaretPosition;
-      SelEndPosition := CaretPosition;
-    end;
   finally
     UndoList.EndUpdate();
   end;
@@ -1837,11 +1863,32 @@ begin
 end;
 
 procedure TBCEditorLines.Put(ALine: Integer; const AText: string);
+var
+  LTrailingLines: Boolean;
 begin
-  if ((FCount = 0) and (ALine = 0)) then
-    Add(AText)
-  else if (AText <> Lines[ALine].Text) then
-    ReplaceText(BOLPosition[ALine], EOLPosition[ALine], AText);
+  LTrailingLines := (ALine = Count - 1) and (loTrimTrailingLines in Options);
+
+  if (LTrailingLines) then
+  begin
+    LTrailingLines := True;
+    BeginUpdate();
+  end;
+
+  try
+    if ((FCount = 0) and (ALine = 0)) then
+      Add(AText)
+    else if (AText <> Lines[ALine].Text) then
+      ReplaceText(BOLPosition[ALine], EOLPosition[ALine], AText);
+
+  finally
+    if (LTrailingLines) then
+    begin
+      while ((Count > 0) and (Lines[Count - 1].Text = '')) do
+        Delete(Count - 1);
+
+      EndUpdate();
+    end;
+  end;
 end;
 
 procedure TBCEditorLines.PutAttributes(ALine: Integer; const AValue: PLineAttribute);
@@ -1907,6 +1954,7 @@ end;
 function TBCEditorLines.ReplaceText(ABeginPosition, AEndPosition: TBCEditorTextPosition;
   const AText: string): TBCEditorTextPosition;
 var
+  LBeginPosition: TBCEditorTextPosition;
   LCaretPosition: TBCEditorTextPosition;
   LText: string;
   LSelBeginPosition: TBCEditorTextPosition;
@@ -1918,14 +1966,46 @@ begin
     LSelBeginPosition := SelBeginPosition;
     LSelEndPosition := SelEndPosition;
 
-    LText := TextBetween[ABeginPosition, AEndPosition];
+    if ((AText = '')
+      and (ABeginPosition.Char = 0)
+      and (AEndPosition = EOFPosition)
+      and (loTrimTrailingLines in Options)) then
+    begin
+      LBeginPosition := ABeginPosition;
+      while ((LBeginPosition.Line > 0) and (Lines[LBeginPosition.Line - 1].Text = '')) do
+        Dec(LBeginPosition.Line);
+      if (LBeginPosition = BOFPosition) then
+      begin
+        InternalClear(False);
+        Result := BOFPosition;
 
-    DoDeleteText(ABeginPosition, AEndPosition);
-    Result := DoInsertText(ABeginPosition, AText);
+        UndoList.PushItem(utClear, LCaretPosition,
+          LSelBeginPosition, LSelEndPosition, SelMode,
+          ABeginPosition, InvalidPosition, LText);
+      end
+      else
+      begin
+        LText := TextBetween[LBeginPosition, AEndPosition];
 
-    UndoList.PushItem(utReplace, LCaretPosition,
-      LSelBeginPosition, LSelEndPosition, SelMode,
-      ABeginPosition, Result, LText);
+        DoDeleteText(LBeginPosition, AEndPosition);
+        Result := LBeginPosition;
+
+        UndoList.PushItem(utDelete, LCaretPosition,
+          LSelBeginPosition, LSelEndPosition, SelMode,
+          LBeginPosition, AEndPosition, LText);
+      end;
+    end
+    else
+    begin
+      LText := TextBetween[ABeginPosition, AEndPosition];
+
+      DoDeleteText(ABeginPosition, AEndPosition);
+      Result := DoInsertText(ABeginPosition, AText);
+
+      UndoList.PushItem(utReplace, LCaretPosition,
+        LSelBeginPosition, LSelEndPosition, SelMode,
+        ABeginPosition, Result, LText);
+    end;
 
     CaretPosition := Result;
   finally

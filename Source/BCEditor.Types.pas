@@ -42,6 +42,7 @@ type
     eoAutoIndent, { Will indent the caret on new lines with the same amount of leading white space as the preceding line }
     eoDragDropEditing, { Allows you to select a block of text and drag it within the document to another location }
     eoDropFiles, { Allows the editor accept OLE file drops }
+    eoTrimTrailingLines, { Lines at the end of file will be removed and not saved }
     eoTrimTrailingSpaces { Spaces at the end of lines will be trimmed and not saved }
   );
   TBCEditorOptions = set of TBCEditorOption;

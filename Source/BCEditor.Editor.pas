@@ -3398,7 +3398,10 @@ begin
     if (SelectionAvailable) then
       SelText := '';
 
-    LLineText := Lines[Lines.CaretPosition.Line];
+    if (Lines.CaretPosition.Line < Lines.Count) then
+      LLineText := Lines[Lines.CaretPosition.Line]
+    else
+      LLineText := '';
 
     if (Length(LLineText) = 0) then
       LNewCaretPosition := Lines.InsertText(Lines.BOLPosition[Lines.CaretPosition.Line], Lines.LineBreak)
@@ -7642,9 +7645,7 @@ var
   LDisplayCaretPosition: TBCEditorDisplayPosition;
 begin
   LDisplayCaretPosition := DisplayCaretPosition;
-  if (Rows.Count = 0) then
-    LDisplayCaretPosition.Row := 0
-  else if ((ARows < 0) or (soPastEndOfFile in Scroll.Options)) then
+  if ((ARows < 0) or (soPastEndOfFile in Scroll.Options)) then
     LDisplayCaretPosition.Row := Max(0, LDisplayCaretPosition.Row + ARows)
   else
     LDisplayCaretPosition.Row := Min(Rows.Count - 1, LDisplayCaretPosition.Row + ARows);
@@ -7903,7 +7904,7 @@ begin
 
       PaintRightMargin(LDrawRect);
 
-      if FCodeFolding.Visible and (cfoShowIndentGuides in CodeFolding.Options) then
+      if (FCodeFolding.Visible and (cfoShowIndentGuides in CodeFolding.Options) and (Rows.Count > 0)) then
         PaintGuides(TopRow, Min(TopRow + VisibleRows, Rows.Count), False);
 
       if FSyncEdit.Enabled and FSyncEdit.Active then
@@ -8599,7 +8600,7 @@ var
             end
           end;
 
-          if ((rfFirstRowOfLine in Rows[LRow].Flags)
+          if (((Rows.Count = 0) or (rfFirstRowOfLine in Rows[LRow].Flags))
             and ((LLine = 0)
               or (LLine = Lines.CaretPosition.Line)
               or ((LLine + 1) mod 10 = 0)
@@ -10398,6 +10399,10 @@ procedure TCustomBCEditor.ReadState(Reader: TReader);
 begin
   inherited;
 
+  if (eoTrimTrailingLines in Options) then
+    Lines.Options := Lines.Options + [loTrimTrailingLines]
+  else
+    Lines.Options := Lines.Options - [loTrimTrailingLines];
   if (eoTrimTrailingSpaces in Options) then
     Lines.Options := Lines.Options + [loTrimTrailingSpaces]
   else
@@ -12050,6 +12055,10 @@ begin
   begin
     FOptions := AValue;
 
+    if (eoTrimTrailingLines in Options) then
+      Lines.Options := Lines.Options + [loTrimTrailingLines]
+    else
+      Lines.Options := Lines.Options - [loTrimTrailingLines];
     if (eoTrimTrailingSpaces in Options) then
       Lines.Options := Lines.Options + [loTrimTrailingSpaces]
     else
