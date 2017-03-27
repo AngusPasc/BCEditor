@@ -2804,7 +2804,7 @@ begin
       end;
       SelText := '';
     end
-    else
+    else if (Lines.Count > 0) then
     begin
       if (FSyncEdit.Active) then
       begin
@@ -7874,7 +7874,7 @@ begin
   if (Rows.Count = 0) then
   begin
     LFirstRow := 0;
-    LLastTextRow := 0;
+    LLastTextRow := -1;
     LLastRow := 0;
   end
   else
@@ -9978,7 +9978,10 @@ var
       LBeginPosition := TextPosition(Min(Lines.SelBeginPosition.Char, Lines.SelEndPosition.Char), Lines.SelBeginPosition.Line);
       LEndPosition := TextPosition(Max(Lines.SelBeginPosition.Char, Lines.SelEndPosition.Char), Lines.SelBeginPosition.Line);
       if (LBeginPosition.Line < Lines.Count) then
+      begin
+        LEndPosition.Char := Min(LEndPosition.Char, Length(Lines[LEndPosition.Line]));
         ASelectedText := Lines.TextBetween[LBeginPosition, LEndPosition]
+      end
       else
         ASelectedText := '';
       if (LEndPosition < Lines.EOFPosition) then
