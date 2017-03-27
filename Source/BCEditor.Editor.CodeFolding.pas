@@ -18,7 +18,6 @@ type
 
     TColors = class(TPersistent)
     strict private
-      FActiveLineBackground: TColor;
       FBackground: TColor;
       FCollapsedLine: TColor;
       FFoldingLine: TColor;
@@ -27,7 +26,6 @@ type
       FIndentHighlight: TColor;
       FOnChange: TChangeEvent;
       procedure DoChange;
-      procedure SetActiveLineBackground(const AValue: TColor);
       procedure SetBackground(const AValue: TColor);
       procedure SetCollapsedLine(const AValue: TColor);
       procedure SetFoldingLine(const AValue: TColor);
@@ -38,7 +36,6 @@ type
       constructor Create;
       procedure Assign(ASource: TPersistent); override;
     published
-      property ActiveLineBackground: TColor read FActiveLineBackground write SetActiveLineBackground default clActiveLineBackground;
       property Background: TColor read FBackground write SetBackground default clLeftMarginBackground;
       property CollapsedLine: TColor read FCollapsedLine write SetCollapsedLine default clLeftMarginFontForeground;
       property FoldingLine: TColor read FFoldingLine write SetFoldingLine default clLeftMarginFontForeground;
@@ -369,7 +366,6 @@ constructor TBCEditorCodeFolding.TColors.Create;
 begin
   inherited;
 
-  FActiveLineBackground := clActiveLineBackground;
   FCollapsedLine := clLeftMarginFontForeground;
   FBackground := clLeftMarginBackground;
   FFoldingLine := clLeftMarginFontForeground;
@@ -383,7 +379,6 @@ begin
   if ASource is TColors then
   with ASource as TColors do
   begin
-    Self.FActiveLineBackground := FActiveLineBackground;
     Self.FCollapsedLine := FCollapsedLine;
     Self.FBackground := FBackground;
     Self.FFoldingLine := FFoldingLine;
@@ -399,15 +394,6 @@ procedure TBCEditorCodeFolding.TColors.DoChange;
 begin
   if Assigned(FOnChange) then
     FOnChange(fcRefresh);
-end;
-
-procedure TBCEditorCodeFolding.TColors.SetActiveLineBackground(const AValue: TColor);
-begin
-  if FActiveLineBackground <> AValue then
-  begin
-    FActiveLineBackground := AValue;
-    DoChange;
-  end;
 end;
 
 procedure TBCEditorCodeFolding.TColors.SetBackground(const AValue: TColor);

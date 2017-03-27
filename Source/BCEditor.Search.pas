@@ -156,7 +156,7 @@ function TBCEditorNormalSearch.FindFirst(const AText: string): Integer;
 begin
   if not FShiftInitialized then
     InitShiftTable;
-  Result := 0;
+  Result := -1;
   FTextLength := Length(AText);
   if FTextLength >= FPatternLength then
   begin
@@ -225,7 +225,7 @@ var
   LIndex: Integer;
   LPValue: PChar;
 begin
-  Result := 0;
+  Result := -1;
   Inc(FRun, FPatternLength);
   while FRun < FTheEnd do
   begin
@@ -243,7 +243,7 @@ begin
             if not TestWholeWord then
               Break;
           Inc(FCount);
-          Result := FRun - FOrigin - FPatternLength + 2;
+          Result := FRun - FOrigin - FPatternLength + 1;
           Exit;
         end;
         Inc(LIndex);
@@ -264,7 +264,7 @@ begin
   Status := '';
   Clear;
   Found := FindFirst(ALines.Text);
-  while Found > 0 do
+  while Found >= 0 do
   begin
     FResults.Add(Pointer(Found));
     Found := Next;

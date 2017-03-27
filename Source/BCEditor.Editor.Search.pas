@@ -3,7 +3,7 @@ unit BCEditor.Editor.Search;
 interface {********************************************************************}
 
 uses
-  Classes,
+  Classes, Generics.Collections,
   Controls, Graphics,
   BCEditor.Types, BCEditor.Consts;
 
@@ -11,7 +11,6 @@ type
   TBCEditorSearch = class(TPersistent)
   type
     TChangeEvent = procedure(Event: TBCEditorSearchChanges) of object;
-    PItem = ^TItem;
     TItem = record
       BeginTextPosition: TBCEditorTextPosition;
       EndTextPosition: TBCEditorTextPosition;
@@ -141,7 +140,7 @@ type
     FEngine: TBCEditorSearchEngine;
     FHighlighter: THighlighter;
     FInSelection: TInSelection;
-    FLines: TList;
+    FLines: TList<TItem>;
     FMap: TMap;
     FOnChange: TChangeEvent;
     FOptions: TOptions;
@@ -159,7 +158,6 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Assign(ASource: TPersistent); override;
-    procedure ClearLines;
     function GetNextSearchItemIndex(const ATextPosition: TBCEditorTextPosition): Integer;
     function GetPreviousSearchItemIndex(const ATextPosition: TBCEditorTextPosition): Integer;
     procedure SetOption(const AOption: TBCEditorSearchOption; const AEnabled: Boolean);
@@ -169,7 +167,7 @@ type
     property Engine: TBCEditorSearchEngine read FEngine write SetEngine default seNormal;
     property Highlighter: THighlighter read FHighlighter write SetHighlighter;
     property InSelection: TInSelection read FInSelection write SetInSelection;
-    property Lines: TList read FLines write FLines;
+    property Lines: TList<TItem> read FLines write FLines;
     property Map: TMap read FMap write SetMap;
     property Options: TOptions read FOptions write FOptions default DefaultOptions;
     property SearchText: string read FSearchText write SetSearchText;
@@ -485,7 +483,7 @@ begin
   FSearchText := '';
   FEngine := seNormal;
   FMap := TBCEditorSearch.TMap.Create;
-  FLines := TList.Create;
+  FLines := TList<TItem>.Create;
   FHighlighter := THighlighter.Create;
   FInSelection := TInSelection.Create;
   FOptions := DefaultOptions;
@@ -497,7 +495,6 @@ begin
   FMap.Free;
   FHighlighter.Free;
   FInSelection.Free;
-  ClearLines;
   FLines.Free;
   inherited;
 end;
@@ -520,15 +517,6 @@ begin
     inherited Assign(ASource);
 end;
 
-procedure TBCEditorSearch.ClearLines;
-var
-  LIndex: Integer;
-begin
-  for LIndex := FLines.Count - 1 downto 0 do
-    Dispose(PItem(FLines.Items[LIndex]));
-  FLines.Clear;
-end;
-
 procedure TBCEditorSearch.DoChange;
 begin
   if Assigned(FOnChange) then
@@ -537,138 +525,65 @@ end;
 
 function TBCEditorSearch.GetNextSearchItemIndex(const ATextPosition: TBCEditorTextPosition): Integer;
 var
-  LHigh: Integer;
-  LLow: Integer;
   LMiddle: Integer;
-  LSearchItem: PItem;
-
-  function IsTextPositionBetweenSearchItems: Boolean;
-  var
-    LPreviousSearchItem: PItem;
-  begin
-    LPreviousSearchItem := PItem(FLines.Items[LMiddle - 1]);
-
-    Result :=
-      ( (LPreviousSearchItem^.BeginTextPosition.Line < ATextPosition.Line) or
-        (LPreviousSearchItem^.BeginTextPosition.Line = ATextPosition.Line) and (LPreviousSearchItem^.BeginTextPosition.Char < ATextPosition.Char) )
-      and
-      ( (LSearchItem^.BeginTextPosition.Line > ATextPosition.Line) or
-        (LSearchItem^.BeginTextPosition.Line = ATextPosition.Line) and (LSearchItem^.BeginTextPosition.Char >= ATextPosition.Char) );
-  end;
-
-  function IsSearchItemGreaterThanTextPosition: Boolean;
-  begin
-    Result := (LSearchItem^.BeginTextPosition.Line > ATextPosition.Line) or
-      (LSearchItem^.BeginTextPosition.Line = ATextPosition.Line) and (LSearchItem^.BeginTextPosition.Char >= ATextPosition.Char)
-  end;
-
-  function IsSearchItemLowerThanTextPosition: Boolean;
-  begin
-    Result := (LSearchItem^.BeginTextPosition.Line < ATextPosition.Line) or
-      (LSearchItem^.BeginTextPosition.Line = ATextPosition.Line) and (LSearchItem^.BeginTextPosition.Char < ATextPosition.Char)
-  end;
-
+  LLeft: Integer;
+  LRight: Integer;
 begin
-  Result := -1;
-
-  if FLines.Count = 0 then
-    Exit;
-
-  LSearchItem := PItem(FLines.Items[0]);
-  if IsSearchItemGreaterThanTextPosition then
-    Exit(0);
-
-  LHigh := FLines.Count - 1;
-
-  LSearchItem := PItem(FLines.Items[LHigh]);
-  if IsSearchItemLowerThanTextPosition then
-    Exit;
-
-  LLow := 1;
-
-  while LLow <= LHigh do
+  if (FLines.Count = 0) then
+    Result := -1
+  else if ((Lines[0].BeginTextPosition >= ATextPosition)
+    or (Lines[Lines.Count - 1].BeginTextPosition < ATextPosition)) then
+    Result := 0
+  else
   begin
-    LMiddle := (LLow + LHigh) div 2;
+    Result := -1;
 
-    LSearchItem := PItem(FLines.Items[LMiddle]);
+    LLeft := 0;
+    LRight := FLines.Count - 1;
 
-    if IsTextPositionBetweenSearchItems then
-      Exit(LMiddle)
-    else
-    if IsSearchItemGreaterThanTextPosition then
-      LHigh := LMiddle - 1
-    else
-    if IsSearchItemLowerThanTextPosition then
-      LLow := LMiddle + 1
+    while (Result < 0) do
+    begin
+      LMiddle := (LLeft + LRight) div 2;
+      if (Lines[LMiddle].BeginTextPosition < ATextPosition) then
+        LLeft := LMiddle + 1
+      else if ((Lines[LMiddle - 1].BeginTextPosition < ATextPosition)
+        and (Lines[LMiddle].BeginTextPosition >= ATextPosition)) then
+        Result := LMiddle
+      else
+        LRight := LMiddle - 1;
+    end;
   end;
 end;
 
 function TBCEditorSearch.GetPreviousSearchItemIndex(const ATextPosition: TBCEditorTextPosition): Integer;
 var
-  LHigh: Integer;
-  LLow: Integer;
   LMiddle: Integer;
-  LSearchItem: PItem;
-
-  function IsTextPositionBetweenSearchItems: Boolean;
-  var
-    LNextSearchItem: PItem;
-  begin
-    LNextSearchItem := PItem(FLines.Items[LMiddle + 1]);
-
-    Result :=
-      ( (LSearchItem^.EndTextPosition.Line < ATextPosition.Line) or
-        (LSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LSearchItem^.EndTextPosition.Char <= ATextPosition.Char) )
-      and
-      ( (LNextSearchItem^.EndTextPosition.Line > ATextPosition.Line) or
-        (LNextSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LNextSearchItem^.EndTextPosition.Char > ATextPosition.Char))
-  end;
-
-  function IsSearchItemGreaterThanTextPosition: Boolean;
-  begin
-    Result := (LSearchItem^.EndTextPosition.Line > ATextPosition.Line) or
-      (LSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LSearchItem^.EndTextPosition.Char > ATextPosition.Char)
-  end;
-
-  function IsSearchItemLowerThanTextPosition: Boolean;
-  begin
-    Result := (LSearchItem^.EndTextPosition.Line < ATextPosition.Line) or
-      (LSearchItem^.EndTextPosition.Line = ATextPosition.Line) and (LSearchItem^.EndTextPosition.Char <= ATextPosition.Char)
-  end;
-
+  LLeft: Integer;
+  LRight: Integer;
 begin
-  Result := -1;
-
-  if FLines.Count = 0 then
-    Exit;
-
-  LSearchItem := PItem(FLines.Items[0]);
-  if IsSearchItemGreaterThanTextPosition then
-    Exit;
-
-  LHigh := FLines.Count - 1;
-
-  LSearchItem := PItem(FLines.Items[LHigh]);
-  if IsSearchItemLowerThanTextPosition then
-    Exit(LHigh);
-
-  LLow := 0;
-  Dec(LHigh);
-
-  while LLow <= LHigh do
+  if (FLines.Count = 0) then
+    Result := -1
+  else if ((Lines[FLines.Count - 1].BeginTextPosition <= ATextPosition)
+    or (Lines[0].BeginTextPosition > ATextPosition)) then
+    Result := FLines.Count - 1
+  else
   begin
-    LMiddle := (LLow + LHigh) div 2;
+    Result := -1;
 
-    LSearchItem := PItem(FLines.Items[LMiddle]);
+    LLeft := 0;
+    LRight := FLines.Count - 1;
 
-    if IsTextPositionBetweenSearchItems then
-      Exit(LMiddle)
-    else
-    if IsSearchItemGreaterThanTextPosition then
-      LHigh := LMiddle - 1
-    else
-    if IsSearchItemLowerThanTextPosition then
-      LLow := LMiddle + 1
+    while (Result < 0) do
+    begin
+      LMiddle := (LLeft + LRight) div 2;
+      if (Lines[LMiddle].BeginTextPosition < ATextPosition) then
+        LLeft := LMiddle + 1
+      else if ((Lines[LMiddle].BeginTextPosition <= ATextPosition)
+        and (Lines[LMiddle + 1].BeginTextPosition > ATextPosition)) then
+        Result := LMiddle
+      else
+        LRight := LMiddle - 1;
+    end;
   end;
 end;
 

@@ -37,7 +37,7 @@ type
     end;
     TLines = array of TLine;
 
-    TState = set of (lsLoading, lsUndo, lsRedo, lsCaretMoved, lsSelChanged, lsTextChanged);
+    TState = set of (lsLoading, lsDontTrim, lsUndo, lsRedo, lsCaretMoved, lsSelChanged, lsTextChanged);
 
     TUndoList = class(TPersistent)
     type
@@ -479,6 +479,7 @@ end;
 
 procedure TBCEditorLines.Backspace(ABeginPosition, AEndPosition: TBCEditorTextPosition);
 var
+  LBeginPosition: TBCEditorTextPosition;
   LCaretPosition: TBCEditorTextPosition;
   LSelBeginPosition: TBCEditorTextPosition;
   LSelEndPosition: TBCEditorTextPosition;
@@ -489,6 +490,14 @@ begin
   LCaretPosition := CaretPosition;
   LSelBeginPosition := SelBeginPosition;
   LSelEndPosition := SelEndPosition;
+
+  LBeginPosition := ABeginPosition;
+
+  if ((loTrimTrailingLines in Options)
+    and (AEndPosition = EOFPosition)) then
+    while ((LBeginPosition.Char = 0) and (LBeginPosition.Line > 0)) do
+      LBeginPosition := EOLPosition[LBeginPosition.Line - 1];
+
   LText := GetTextBetween(ABeginPosition, AEndPosition);
 
   UndoList.BeginUpdate();
@@ -794,6 +803,7 @@ var
   LInsertEndPosition: TBCEditorTextPosition;
   LLine: Integer;
   LLineLength: Integer;
+  LOldOptions: TOptions;
   LSelBeginPosition: TBCEditorTextPosition;
   LSelEndPosition: TBCEditorTextPosition;
   LSpaces: string;
@@ -814,7 +824,13 @@ begin
       begin
         LInsertBeginPosition := EOLPosition[ABeginPosition.Line];
 
-        LInsertEndPosition := DoInsertText(LInsertBeginPosition, StringOfChar(BCEDITOR_SPACE_CHAR, ABeginPosition.Char - LInsertBeginPosition.Char));
+        LOldOptions := Options;
+        FOptions := FOptions - [loTrimTrailingLines, loTrimTrailingSpaces];
+        try
+          LInsertEndPosition := DoInsertText(LInsertBeginPosition, StringOfChar(BCEDITOR_SPACE_CHAR, ABeginPosition.Char - LInsertBeginPosition.Char));
+        finally
+          FOptions := LOldOptions;
+        end;
 
         UndoList.PushItem(utInsert, LCaretPosition,
           LSelBeginPosition, LSelEndPosition, SelMode,
@@ -1100,7 +1116,7 @@ var
   LPos: PChar;
 begin
   Assert(BOFPosition <= APosition);
-  Assert((APosition.Line = 0) and (Count = 0) or (APosition.Line < Count) and (APosition.Char <= Length(Lines[APosition.Line].Text)));
+  Assert((APosition.Line < Count) and (APosition.Char <= Length(Lines[APosition.Line].Text)) or (APosition = BOFPosition) and (Count = 0), 'Position: ' + APosition.ToString());
 
   if (AText = '') then
     Result := APosition
@@ -1525,8 +1541,9 @@ var
   StringBuilder: TStringBuilder;
 begin
   Assert((BOFPosition <= ABeginPosition) and (AEndPosition <= EOFPosition));
-  Assert((AEndPosition = BOFPosition) or (AEndPosition.Char <= Length(Lines[AEndPosition.Line].Text)));
   Assert(ABeginPosition <= AEndPosition);
+  Assert(ABeginPosition.Char <= Length(Lines[ABeginPosition.Line].Text));
+  Assert(AEndPosition.Char <= Length(Lines[AEndPosition.Line].Text));
 
   if (ABeginPosition = AEndPosition) then
     Result := ''
@@ -1536,7 +1553,7 @@ begin
   begin
     StringBuilder := TStringBuilder.Create();
 
-    StringBuilder.Append(Lines[ABeginPosition.Line].Text, ABeginPosition.Char, Length(Lines[ABeginPosition.Line].Text) - (ABeginPosition.Char));
+    StringBuilder.Append(Lines[ABeginPosition.Line].Text, ABeginPosition.Char, Length(Lines[ABeginPosition.Line].Text) - ABeginPosition.Char);
     for LLine := ABeginPosition.Line + 1 to AEndPosition.Line - 1 do
     begin
       StringBuilder.Append(LineBreak);
@@ -1607,7 +1624,10 @@ end;
 
 function TBCEditorLines.GetTextStr: string;
 begin
-  Result := GetTextBetween(BOFPosition, EOFPosition);
+  if (Count = 0) then
+    Result := ''
+  else
+    Result := GetTextBetween(BOFPosition, EOFPosition);
 end;
 
 procedure TBCEditorLines.Grow();
@@ -1882,10 +1902,10 @@ begin
 
   finally
     if (LTrailingLines) then
-    begin
+    try
       while ((Count > 0) and (Lines[Count - 1].Text = '')) do
         Delete(Count - 1);
-
+    finally
       EndUpdate();
     end;
   end;
@@ -1956,60 +1976,72 @@ function TBCEditorLines.ReplaceText(ABeginPosition, AEndPosition: TBCEditorTextP
 var
   LBeginPosition: TBCEditorTextPosition;
   LCaretPosition: TBCEditorTextPosition;
-  LText: string;
+  LOldOptions: TOptions;
   LSelBeginPosition: TBCEditorTextPosition;
   LSelEndPosition: TBCEditorTextPosition;
+  LText: string;
 begin
-  UndoList.BeginUpdate();
-  try
-    LCaretPosition := CaretPosition;
-    LSelBeginPosition := SelBeginPosition;
-    LSelEndPosition := SelEndPosition;
+  if (ABeginPosition = AEndPosition) then
+    InsertText(ABeginPosition, AText)
+  else
+  begin
+    UndoList.BeginUpdate();
+    try
+      LCaretPosition := CaretPosition;
+      LSelBeginPosition := SelBeginPosition;
+      LSelEndPosition := SelEndPosition;
 
-    if ((AText = '')
-      and (ABeginPosition.Char = 0)
-      and (AEndPosition = EOFPosition)
-      and (loTrimTrailingLines in Options)) then
-    begin
-      LBeginPosition := ABeginPosition;
-      while ((LBeginPosition.Line > 0) and (Lines[LBeginPosition.Line - 1].Text = '')) do
-        Dec(LBeginPosition.Line);
-      if (LBeginPosition = BOFPosition) then
+      if ((AText = '')
+        and (ABeginPosition.Char = 0)
+        and (AEndPosition = EOFPosition)
+        and (loTrimTrailingLines in Options)) then
       begin
-        InternalClear(False);
-        Result := BOFPosition;
+        LBeginPosition := ABeginPosition;
+        while ((LBeginPosition.Line > 0) and (Lines[LBeginPosition.Line - 1].Text = '')) do
+          Dec(LBeginPosition.Line);
+        if (LBeginPosition = BOFPosition) then
+        begin
+          InternalClear(False);
+          Result := BOFPosition;
 
-        UndoList.PushItem(utClear, LCaretPosition,
-          LSelBeginPosition, LSelEndPosition, SelMode,
-          ABeginPosition, InvalidPosition, LText);
+          UndoList.PushItem(utClear, LCaretPosition,
+            LSelBeginPosition, LSelEndPosition, SelMode,
+            ABeginPosition, InvalidPosition, LText);
+        end
+        else
+        begin
+          LText := TextBetween[LBeginPosition, AEndPosition];
+
+          DoDeleteText(LBeginPosition, AEndPosition);
+          Result := LBeginPosition;
+
+          UndoList.PushItem(utDelete, LCaretPosition,
+            LSelBeginPosition, LSelEndPosition, SelMode,
+            LBeginPosition, AEndPosition, LText);
+        end;
       end
       else
       begin
-        LText := TextBetween[LBeginPosition, AEndPosition];
+        LText := TextBetween[ABeginPosition, AEndPosition];
 
-        DoDeleteText(LBeginPosition, AEndPosition);
-        Result := LBeginPosition;
+        LOldOptions := FOptions;
+        try
+          FOptions := FOptions - [loTrimTrailingLines, loTrimTrailingSpaces];
+          DoDeleteText(ABeginPosition, AEndPosition);
+        finally
+          FOptions := LOldOptions;
+        end;
+        Result := DoInsertText(ABeginPosition, AText);
 
-        UndoList.PushItem(utDelete, LCaretPosition,
+        UndoList.PushItem(utReplace, LCaretPosition,
           LSelBeginPosition, LSelEndPosition, SelMode,
-          LBeginPosition, AEndPosition, LText);
+          ABeginPosition, Result, LText);
       end;
-    end
-    else
-    begin
-      LText := TextBetween[ABeginPosition, AEndPosition];
 
-      DoDeleteText(ABeginPosition, AEndPosition);
-      Result := DoInsertText(ABeginPosition, AText);
-
-      UndoList.PushItem(utReplace, LCaretPosition,
-        LSelBeginPosition, LSelEndPosition, SelMode,
-        ABeginPosition, Result, LText);
+      CaretPosition := Result;
+    finally
+      UndoList.EndUpdate();
     end;
-
-    CaretPosition := Result;
-  finally
-    UndoList.EndUpdate();
   end;
 end;
 

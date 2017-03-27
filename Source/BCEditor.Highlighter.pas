@@ -1975,7 +1975,6 @@ begin
       begin
         BackgroundColor := StringToColorDef(LColorsObject['Background'].Value, BackgroundColor);
         ActiveLine.Color := StringToColorDef(LColorsObject['ActiveLineBackground'].Value, ActiveLine.Color);
-        CodeFolding.Colors.ActiveLineBackground := StringToColorDef(LColorsObject['CodeFoldingActiveLineBackground'].Value, CodeFolding.Colors.ActiveLineBackground);
         CodeFolding.Colors.Background := StringToColorDef(LColorsObject['CodeFoldingBackground'].Value, CodeFolding.Colors.Background);
         CodeFolding.Colors.CollapsedLine := StringToColorDef(LColorsObject['CodeFoldingCollapsedLine'].Value, CodeFolding.Colors.CollapsedLine);
         CodeFolding.Colors.FoldingLine := StringToColorDef(LColorsObject['CodeFoldingFoldingLine'].Value, CodeFolding.Colors.FoldingLine);

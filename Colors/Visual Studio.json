@@ -14,7 +14,6 @@
       "Colors": {
         "Background": "clWhite",
         "ActiveLineBackground": "$00F0FFFF",
-        "CodeFoldingActiveLineBackground": "$00F0FFFF",
         "CodeFoldingBackground": "clWhite",
         "CodeFoldingCollapsedLine": "clGray",
         "CodeFoldingFoldingLine": "clGray",
