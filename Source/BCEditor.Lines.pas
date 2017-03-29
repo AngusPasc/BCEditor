@@ -506,7 +506,10 @@ begin
     end;
 
     if (LLength > Length(Lines[Result.Line].Text)) then
-      raise ERangeError.CreateFmt(SCharIndexOutOfBounds + ' (%d, %d / %d, %d / %d)', [ACharIndex, Length(Text), LLength, Length(Lines[Result.Line].Text), Result.Line, Count]);
+      if (Result.Line < Count) then
+        raise ERangeError.CreateFmt(SBCEditorCharIndexInLineBreak + ' (%d / %d, %d / %d, %d / %d)', [ACharIndex, Length(Text), LLength, Length(Lines[Result.Line].Text), Result.Line, Count])
+      else
+        raise ERangeError.CreateFmt(SCharIndexOutOfBounds + ' (%d, %d / %d, %d / %d)', [ACharIndex, Length(Text), LLength, Length(Lines[Result.Line].Text), Result.Line, Count]);
 
     Result.Char := LLength;
   end;
@@ -564,6 +567,8 @@ begin
   FState := [];
   FUndoList := TUndoList.Create(Self);
   TabWidth := 4;
+
+  DoInsert(0, '');
 end;
 
 procedure TBCEditorLines.CustomSort(const ABeginLine, AEndLine: Integer;
@@ -698,20 +703,15 @@ begin
     end;
   end;
 
-  if (Lines.Count = 0) then
-    CaretPosition := BOFPosition
-  else
-  begin
-    if ((ABeginPosition <= CaretPosition) and (CaretPosition <= AEndPosition)
-      and (CaretPosition.Char > Length(Lines[CaretPosition.Line].Text))) then
-      FCaretPosition.Char := Length(Lines[CaretPosition.Line].Text);
-    if ((ABeginPosition <= FSelBeginPosition) and (FSelBeginPosition <= AEndPosition)
-      and (CaretPosition.Char > Length(Lines[FSelBeginPosition.Line].Text))) then
-      FSelBeginPosition.Char := Length(Lines[SelBeginPosition.Line].Text);
-    if ((ABeginPosition <= FSelEndPosition) and (FSelEndPosition <= AEndPosition)
-      and (FSelEndPosition.Char > Length(Lines[FSelEndPosition.Line].Text))) then
-      FSelEndPosition.Char := Length(Lines[SelEndPosition.Line].Text);
-  end;
+  if ((ABeginPosition <= CaretPosition) and (CaretPosition <= AEndPosition)
+    and (CaretPosition.Char > Length(Lines[CaretPosition.Line].Text))) then
+    FCaretPosition.Char := Length(Lines[CaretPosition.Line].Text);
+  if ((ABeginPosition <= FSelBeginPosition) and (FSelBeginPosition <= AEndPosition)
+    and (CaretPosition.Char > Length(Lines[FSelBeginPosition.Line].Text))) then
+    FSelBeginPosition.Char := Length(Lines[SelBeginPosition.Line].Text);
+  if ((ABeginPosition <= FSelEndPosition) and (FSelEndPosition <= AEndPosition)
+    and (FSelEndPosition.Char > Length(Lines[FSelEndPosition.Line].Text))) then
+    FSelEndPosition.Char := Length(Lines[SelEndPosition.Line].Text);
 end;
 
 procedure TBCEditorLines.DeleteText(ABeginPosition, AEndPosition: TBCEditorTextPosition;
@@ -819,6 +819,8 @@ begin
 end;
 
 procedure TBCEditorLines.DoDelete(ALine: Integer);
+var
+  LClear: Boolean;
 begin
   Assert((0 <= ALine) and (ALine < Count));
 
@@ -828,10 +830,23 @@ begin
     else if (FMaxLengthLine > ALine) then
       Dec(FMaxLengthLine);
 
-  Lines.Delete(ALine);
+  LClear := Count = 1;
+  if (LClear) then
+  begin
+    Lines.List[0].Background := clNone;
+    Lines.List[0].ExpandedLength := -1;
+    Lines.List[0].FirstRow := -1;
+    Lines.List[0].Foreground := clNone;
+    Lines.List[0].Flags := [sfHasTabs, sfHasNoTabs];
+    Lines.List[0].Range := nil;
+    Lines.List[0].State := lsLoaded;
+    Lines.List[0].Text := '';
+  end
+  else
+    Lines.Delete(ALine);
 
   if (SelMode = smNormal) then
-    if (Count = 0) then
+    if (LClear) then
       CaretPosition := BOFPosition
     else if (ALine < Count) then
       CaretPosition := BOLPosition[ALine]
@@ -848,7 +863,7 @@ begin
   if (UpdateCount > 0) then
     Include(FState, lsTextChanged);
 
-  if ((Count = 0) and Assigned(OnCleared)) then
+  if (LClear and Assigned(OnCleared)) then
     OnCleared(Self)
   else if (Assigned(OnDeleted)) then
     OnDeleted(Self, ALine);
@@ -1013,18 +1028,15 @@ var
   LPos: PChar;
 begin
   Assert(BOFPosition <= APosition);
-  Assert((APosition.Line < Count) and (APosition.Char <= Length(Lines[APosition.Line].Text)) or (APosition = BOFPosition) and (Count = 0), 'Position: ' + APosition.ToString());
+  Assert((APosition.Line < Count) and (APosition.Char <= Length(Lines[APosition.Line].Text)));
 
   if (AText = '') then
     Result := APosition
   else if (not HasLineBreak(AText)) then
   begin
-    if (Count = 0) then
-      DoInsert(0, AText)
-    else
-      DoPut(APosition.Line, LeftStr(Lines[APosition.Line].Text, APosition.Char)
-        + AText
-        + Copy(Lines[APosition.Line].Text, 1 + APosition.Char, MaxInt));
+    DoPut(APosition.Line, LeftStr(Lines[APosition.Line].Text, APosition.Char)
+      + AText
+      + Copy(Lines[APosition.Line].Text, 1 + APosition.Char, MaxInt));
     Result := TextPosition(APosition.Char + Length(AText), APosition.Line);
   end
   else
@@ -1317,10 +1329,7 @@ end;
 
 function TBCEditorLines.GetEOFPosition(): TBCEditorTextPosition;
 begin
-  if (Count = 0) then
-    Result := BOFPosition
-  else
-    Result := EOLPosition[Count - 1];
+  Result := EOLPosition[Count - 1];
 end;
 
 function TBCEditorLines.GetEOLPosition(ALine: Integer): TBCEditorTextPosition;
@@ -1530,16 +1539,11 @@ end;
 
 function TBCEditorLines.GetTextStr: string;
 begin
-  if (Count = 0) then
-    Result := ''
-  else
-  begin
-    Include(FState, lsSaving);
-    try
-      Result := TextBetween[BOFPosition, EOFPosition];
-    finally
-      Exclude(FState, lsSaving);
-    end;
+  Include(FState, lsSaving);
+  try
+    Result := TextBetween[BOFPosition, EOFPosition];
+  finally
+    Exclude(FState, lsSaving);
   end;
 end;
 
@@ -1718,16 +1722,7 @@ begin
       LCaretPosition := CaretPosition;
       LSelBeginPosition := SelBeginPosition;
       LSelEndPosition := SelEndPosition;
-      if (Count = 0) then
-      begin
-        LPosition := BOFPosition;
-        LText := '';
-        for LIndex := 1 to APosition.Line do
-          LText := LText + LineBreak;
-        LText := LText + StringOfChar(BCEDITOR_SPACE_CHAR, APosition.Char);
-        Result := DoInsertText(LPosition, LText + AText);
-      end
-      else if ((APosition.Line < Count) and (APosition.Char <= Length(Lines[APosition.Line].Text))) then
+      if ((APosition.Line < Count) and (APosition.Char <= Length(Lines[APosition.Line].Text))) then
       begin
         LPosition := APosition;
         Result := DoInsertText(LPosition, AText);
@@ -1771,6 +1766,8 @@ begin
   FSelBeginPosition := BOFPosition;
   FSelEndPosition := BOFPosition;
   Lines.Clear();
+  DoInsert(0, '');
+  Lines.List[0].State := lsLoaded;
   if (Assigned(OnCleared)) then
     OnCleared(Self);
 end;
@@ -1954,9 +1951,7 @@ begin
 
     FSelBeginPosition := AValue;
     if (SelMode = smNormal) then
-      if (Count = 0) then
-        FSelBeginPosition := BOFPosition
-      else if (FSelBeginPosition.Line < Count) then
+      if (FSelBeginPosition.Line < Count) then
         FSelBeginPosition.Char := Min(FSelBeginPosition.Char, Length(Lines[FSelBeginPosition.Line].Text))
       else
         FSelBeginPosition := EOFPosition;
@@ -1980,9 +1975,7 @@ begin
 
     FSelEndPosition := AValue;
     if (SelMode = smNormal) then
-      if (Count = 0) then
-        FSelEndPosition := BOFPosition
-      else if (FSelEndPosition.Line < Count) then
+      if (FSelEndPosition.Line < Count) then
         FSelEndPosition.Char := Min(FSelEndPosition.Char, Length(Lines[FSelEndPosition.Line].Text))
       else
         FSelEndPosition := EOFPosition;
