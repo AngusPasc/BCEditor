@@ -503,7 +503,6 @@ type
     procedure DoTripleClick;
     procedure DragCanceled; override;
     procedure DragOver(ASource: TObject; X, Y: Integer; AState: TDragState; var AAccept: Boolean); override;
-    procedure EnsureCaretPositionVisible(AForceToMiddle: Boolean = False; AEvenIfVisible: Boolean = False);
     procedure ExpandCodeFoldingLevel(const AFirstLevel: Integer; const ALastLevel: Integer);
     function ExpandCodeFoldingLines(const AFirstLine: Integer = -1; const ALastLine: Integer = -1): Integer;
     procedure FillRect(const ARect: TRect);
@@ -578,6 +577,7 @@ type
     procedure SetUndoOption(const AOption: TBCEditorUndoOption; const AEnabled: Boolean);
     procedure SetWantReturns(const AValue: Boolean);
     procedure ShowCaret;
+    procedure ScrollToCaret(ACenterVertical: Boolean = False; AScrollAlways: Boolean = False);
     function TextToDisplay(const ATextPosition: TBCEditorTextPosition): TBCEditorDisplayPosition;
     procedure ToggleBookmark(const AIndex: Integer = -1);
     procedure UpdateCaret();
@@ -3871,7 +3871,7 @@ begin
         MoveCaretVertically(TopRow - LDisplayCaretRow, False);
     end;
 
-  EnsureCaretPositionVisible();
+  ScrollToCaret();
 end;
 
 function TCustomBCEditor.DoSearchFind(const First: Boolean; const Action: TSearchFind): Boolean;
@@ -4551,7 +4551,7 @@ begin
         ScanMatchingPair();
 
       if (State * [esCaretMoved, esRowsChanged, esLinesCleared, esLinesUpdated] <> []) then
-        EnsureCaretPositionVisible();
+        ScrollToCaret();
 
       if (HandleAllocated) then
       begin
@@ -4574,51 +4574,6 @@ begin
 
       FState := FState - [esLinesCleared, esLinesDeleted, esLinesInserted, esLinesUpdated];
     end;
-  end;
-end;
-
-procedure TCustomBCEditor.EnsureCaretPositionVisible(AForceToMiddle: Boolean = False; AEvenIfVisible: Boolean = False);
-var
-  LCaretRow: Integer;
-  LDisplayCaretPosition: TBCEditorDisplayPosition;
-  LMiddle: Integer;
-begin
-  LDisplayCaretPosition := DisplayCaretPosition;
-  if (LDisplayCaretPosition.Column < LeftColumn) then
-    LeftColumn := LDisplayCaretPosition.Column
-  else if (LDisplayCaretPosition.Column > LeftColumn + VisibleColumns) then
-    LeftColumn := LDisplayCaretPosition.Column - VisibleColumns;
-
-  LCaretRow := DisplayCaretPosition.Row;
-  if AForceToMiddle then
-  begin
-    if LCaretRow < TopRow - 1 then
-    begin
-      LMiddle := VisibleRows div 2;
-      if LCaretRow - LMiddle < 0 then
-        TopRow := 1
-      else
-        TopRow := LCaretRow - LMiddle + 1;
-    end
-    else
-    if LCaretRow > TopRow + VisibleRows - 2 then
-    begin
-      LMiddle := VisibleRows div 2;
-      TopRow := LCaretRow - VisibleRows - 1 + LMiddle;
-    end
-    else
-    if AEvenIfVisible then
-    begin
-      LMiddle := VisibleRows div 2;
-      TopRow := LCaretRow - LMiddle + 1;
-    end;
-  end
-  else
-  begin
-    if (LCaretRow < TopRow) then
-      TopRow := LCaretRow
-    else if (LCaretRow > TopRow + VisibleRows - 1) then
-      TopRow := LCaretRow - VisibleRows + 1;
   end;
 end;
 
@@ -6883,7 +6838,7 @@ begin
   begin
     UpdateCaret();
     ScanMatchingPair();
-    EnsureCaretPositionVisible();
+    ScrollToCaret();
   end;
 end;
 
@@ -11627,6 +11582,32 @@ begin
   ComputeScroll(LCursorPoint);
 end;
 
+procedure TCustomBCEditor.ScrollToCaret(ACenterVertical: Boolean = False; AScrollAlways: Boolean = False);
+var
+  LDisplayCaretPosition: TBCEditorDisplayPosition;
+begin
+  LDisplayCaretPosition := DisplayCaretPosition;
+  if (LDisplayCaretPosition.Column < LeftColumn) then
+    LeftColumn := LDisplayCaretPosition.Column
+  else if (LDisplayCaretPosition.Column > LeftColumn + VisibleColumns) then
+    LeftColumn := LDisplayCaretPosition.Column - VisibleColumns;
+
+  if (not ACenterVertical) then
+  begin
+    if (LDisplayCaretPosition.Row < TopRow) then
+      TopRow := LDisplayCaretPosition.Row
+    else if (LDisplayCaretPosition.Row > TopRow + VisibleRows) then
+      TopRow := LDisplayCaretPosition.Row - VisibleRows;
+  end
+  else
+  begin
+    if (LDisplayCaretPosition.Row < TopRow) then
+      TopRow := Max(0, LDisplayCaretPosition.Row - VisibleRows div 2)
+    else if ((LDisplayCaretPosition.Row > TopRow + VisibleRows) or AScrollAlways) then
+      TopRow := LDisplayCaretPosition.Row - VisibleRows div 2;
+  end;
+end;
+
 procedure TCustomBCEditor.SearchAll(const ASearchText: string = '');
 var
   LBeginTextPosition: TBCEditorTextPosition;
@@ -13184,7 +13165,7 @@ begin
     UpdateScrollBars;
 
     if LShowCaret then
-      EnsureCaretPositionVisible;
+      ScrollToCaret;
   end;
 end;
 

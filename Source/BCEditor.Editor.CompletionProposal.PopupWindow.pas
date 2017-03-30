@@ -399,7 +399,7 @@ begin
       if CanFocus then
         SetFocus;
 
-      EnsureCaretPositionVisible;
+      ScrollToCaret;
       CaretPos := Point(SelectionEndPosition);
       SelectionBeginPosition := TextPosition(CaretPos.X + 1, CaretPos.Y);
     finally
