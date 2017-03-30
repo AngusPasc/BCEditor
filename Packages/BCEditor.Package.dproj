@@ -3,7 +3,7 @@
         <ProjectGuid>{AC917C2B-5870-48AD-981D-668AD3E4A533}</ProjectGuid>
         <MainSource>BCEditor.Package.dpk</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Package</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -58,7 +58,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_BplOutput>$(BDS)\Projects\Bpl</DCC_BplOutput>
+        <DCC_BplOutput>$(BDSUSERDIR)\Projects\Bpl</DCC_BplOutput>
         <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
         <DCC_K>false</DCC_K>
         <VerInfo_Locale>1031</VerInfo_Locale>

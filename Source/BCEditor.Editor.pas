@@ -431,7 +431,7 @@ type
     procedure UMFreeCompletionProposalPopupWindow(var AMessage: TMessage); message UM_FREE_COMPLETIONPROPOSAL_POPUPWINDOW;
     procedure UpdateFoldRanges(const ACurrentLine: Integer; const ALineCount: Integer); overload;
     procedure UpdateFoldRanges(AFoldRanges: TBCEditorCodeFolding.TRanges; const ALineCount: Integer); overload;
-    procedure UpdateLineInRows(const ALine: Integer);
+    procedure UpdateRows(const ALine: Integer);
     procedure UpdateScrollBars();
     procedure UpdateWordWrap(const AValue: Boolean);
     procedure WMCaptureChanged(var AMessage: TMessage); message WM_CAPTURECHANGED;
@@ -1714,8 +1714,6 @@ var
 begin
   if (X < FLeftMarginWidth) then
     Result := DisplayPosition(0, ARow)
-  else if (Rows.Count = 0) then
-    Result := DisplayPosition((X - FLeftMarginWidth) div CharWidth, ARow)
   else if (ARow >= Rows.Count) then
     Result := DisplayPosition((X - FLeftMarginWidth) div CharWidth, Rows[Rows.Count - 1].Line + ARow - Rows.Count + 1)
   else
@@ -2622,9 +2620,7 @@ var
   LTokenText: string;
   LTokenLength: Integer;
 begin
-  if (Rows.Count = 0) then
-    Result := Point(FLeftMarginWidth + ADisplayPosition.Column * CharWidth, (ADisplayPosition.Row - TopRow) * LineHeight)
-  else if (ADisplayPosition.Row >= Rows.Count) then
+  if (ADisplayPosition.Row >= Rows.Count) then
     Result := Point(FLeftMarginWidth + ADisplayPosition.Column * CharWidth, (Lines.Count - Rows[Rows.Count - 1].Line - 1 + ADisplayPosition.Row - TopRow) * LineHeight)
   else
   begin
@@ -2714,9 +2710,7 @@ var
   LResultChar: Integer;
   LRow: Integer;
 begin
-  if (Rows.Count = 0) then
-    Result := TextPosition(ADisplayPosition.Column, ADisplayPosition.Row)
-  else if (ADisplayPosition.Row >= Rows.Count) then
+  if (ADisplayPosition.Row >= Rows.Count) then
     Result := TextPosition(ADisplayPosition.Column, Rows[Rows.Count - 1].Line + ADisplayPosition.Row - Rows.Count + 1)
   else
   begin
@@ -4542,12 +4536,10 @@ begin
         and LeftMargin.LineNumbers.Visible and LeftMargin.Autosize) then
         LeftMargin.AutosizeDigitCount(Lines.Count);
 
-//      if ((Rows.Count > 0)
-//        and (State * [esRowsChanged, esLinesUpdated] <> [])) then
+//      if (State * [esRowsChanged, esLinesUpdated] <> []) then
 //        UpdateFoldRanges(0, Lines.Count);
 
-      if ((Rows.Count > 0)
-        and (State * [esCaretMoved, esRowsChanged, esLinesCleared, esLinesDeleted, esLinesInserted, esLinesUpdated] <> [])) then
+      if (State * [esCaretMoved, esRowsChanged, esLinesCleared, esLinesDeleted, esLinesInserted, esLinesUpdated] <> []) then
         ScanMatchingPair();
 
       if (State * [esCaretMoved, esRowsChanged, esLinesCleared, esLinesUpdated] <> []) then
@@ -6115,13 +6107,14 @@ end;
 
 procedure TCustomBCEditor.InitCodeFolding;
 begin
-  if FReplaceLock then
-    Exit;
-  ClearCodeFolding;
-  if FCodeFolding.Visible then
+  if (not FReplaceLock) then
   begin
-    ScanCodeFoldingRanges;
-    CodeFoldingResetCaches;
+    ClearCodeFolding;
+    if FCodeFolding.Visible then
+    begin
+      ScanCodeFoldingRanges;
+      CodeFoldingResetCaches;
+    end;
   end;
 end;
 
@@ -6917,14 +6910,11 @@ procedure TCustomBCEditor.LineInserted(ASender: TObject; const ALine: Integer);
   end;
 
 begin
-  if not (lsLoading in Lines.State) then
-  begin
-    UpdateMarks(FBookmarkList);
-    UpdateMarks(FMarkList);
+  UpdateMarks(FBookmarkList);
+  UpdateMarks(FMarkList);
 
-    if FCodeFolding.Visible then
-      UpdateFoldRanges(ALine + 1, 1);
-  end;
+  if FCodeFolding.Visible then
+    UpdateFoldRanges(ALine + 1, 1);
 
   if (Assigned(FHighlighter)) then
     RescanHighlighterRangesFrom(ALine);
@@ -6954,13 +6944,16 @@ end;
 
 procedure TCustomBCEditor.LineUpdated(ASender: TObject; const ALine: Integer);
 begin
-  UpdateLineInRows(ALine);
-
-  if not FReplaceLock then
-    SearchAll;
+  UpdateRows(ALine);
 
   if (Assigned(FHighlighter)) then
     RescanHighlighterRangesFrom(ALine);
+
+  if FCodeFolding.Visible then
+    UpdateFoldRanges(ALine + 1, 1);
+
+  if not FReplaceLock then
+    SearchAll;
 
   Modified := True;
 
@@ -7823,19 +7816,10 @@ var
 begin
   LClipRect := ClientRect;
 
-  if (Rows.Count = 0) then
-  begin
-    LFirstRow := 0;
-    LLastTextRow := -1;
-    LLastRow := 0;
-  end
-  else
-  begin
-    LFirstRow := TopRow + LClipRect.Top div LineHeight;
-    LTemp := (LClipRect.Bottom + LineHeight - 1) div LineHeight;
-    LLastTextRow := MinMax(TopRow + LTemp - 1, 0, Rows.Count - 1);
-    LLastRow := TopRow + LTemp;
-  end;
+  LFirstRow := TopRow + LClipRect.Top div LineHeight;
+  LTemp := (LClipRect.Bottom + LineHeight - 1) div LineHeight;
+  LLastTextRow := MinMax(TopRow + LTemp - 1, 0, Rows.Count - 1);
+  LLastRow := TopRow + LTemp;
 
   HideCaret;
 
@@ -7856,7 +7840,7 @@ begin
 
       PaintRightMargin(LDrawRect);
 
-      if (FCodeFolding.Visible and (cfoShowIndentGuides in CodeFolding.Options) and (Rows.Count > 0)) then
+      if (FCodeFolding.Visible and (cfoShowIndentGuides in CodeFolding.Options)) then
         PaintGuides(TopRow, Min(TopRow + VisibleRows, Rows.Count), False);
 
       if FSyncEdit.Enabled and FSyncEdit.Active then
@@ -8549,7 +8533,7 @@ var
             end
           end;
 
-          if (((Rows.Count = 0) or (rfFirstRowOfLine in Rows[LRow].Flags))
+          if ((rfFirstRowOfLine in Rows[LRow].Flags)
             and ((LLine = 0)
               or (LLine = Lines.CaretPosition.Line)
               or ((LLine + 1) mod 10 = 0)
@@ -8690,12 +8674,9 @@ var
       LOverlappingOffsets := AllocMem((ALastRow - AFirstRow + 1) * SizeOf(Integer));
       try
         for LRow := AFirstRow to ALastTextRow do
-          if ((Rows.Count = 0) or (rfFirstRowOfLine in Rows[LRow].Flags)) then
+          if (rfFirstRowOfLine in Rows[LRow].Flags) then
           begin
-            if (Rows.Count = 0) then
-              LLine := 0
-            else
-              LLine := Rows[LRow].Line;
+            LLine := Rows[LRow].Line;
             { Bookmarks }
             for LIndex := FBookmarkList.Count - 1 downto 0 do
             begin
@@ -8746,7 +8727,7 @@ var
     LOldColor: TColor;
     LRow: Integer;
   begin
-    if (LeftMargin.LineState.Enabled and (Rows.Count > 0)) then
+    if (LeftMargin.LineState.Enabled) then
     begin
       LOldColor := Canvas.Brush.Color;
       LLineStateRect.Left := AClipRect.Left + LeftMargin.Width - LeftMargin.LineState.Width - 1;
@@ -10297,18 +10278,16 @@ begin
       LCurrentSearchIndex := -1;
   end;
 
-  if (Rows.Count > 0) then
-    PaintLines;
+  PaintLines;
 
   LBookmarkOnCurrentLine := False;
 
   { Fill below the last line }
   LTokenRect := AClipRect;
-  if (Rows.Count > 0) then
-    if (AMinimap) then
-      LTokenRect.Top := Min(FMinimap.VisibleRows, Rows.Count) * FMinimap.CharHeight
-    else
-      LTokenRect.Top := (ALastRow - TopRow + 1) * LineHeight;
+  if (AMinimap) then
+    LTokenRect.Top := Min(FMinimap.VisibleRows, Rows.Count) * FMinimap.CharHeight
+  else
+    LTokenRect.Top := (ALastRow - TopRow + 1) * LineHeight;
 
   if LTokenRect.Top < LTokenRect.Bottom then
   begin
@@ -11370,106 +11349,103 @@ var
   LRow: Integer;
   LPreviousLine: Integer;
 begin
-  if (Rows.Count > 0) then
-  begin
-    LFoldCount := 0;
-    LOpenTokenSkipFoldRangeList := TList.Create;
-    LOpenTokenFoldRangeList := TList.Create;
-    LCodeFoldingRangeIndexList := TList.Create;
-    try
-      if TagFolds then
-        AddTagFolds;
+  LFoldCount := 0;
+  LOpenTokenSkipFoldRangeList := TList.Create;
+  LOpenTokenFoldRangeList := TList.Create;
+  LCodeFoldingRangeIndexList := TList.Create;
+  try
+    if TagFolds then
+      AddTagFolds;
 
-      { Go through the text line by line, character by character }
-      LPreviousLine := -1;
+    { Go through the text line by line, character by character }
+    LPreviousLine := -1;
 
-      LCodeFoldingRangeIndexList.Add(Pointer(DEFAULT_CODE_FOLDING_RANGE_INDEX));
+    LCodeFoldingRangeIndexList.Add(Pointer(DEFAULT_CODE_FOLDING_RANGE_INDEX));
 
-      if Highlighter.CodeFoldingRangeCount > 0 then
-        LCurrentCodeFoldingRegion := Highlighter.CodeFoldingRegions[DEFAULT_CODE_FOLDING_RANGE_INDEX];
+    if Highlighter.CodeFoldingRangeCount > 0 then
+      LCurrentCodeFoldingRegion := Highlighter.CodeFoldingRegions[DEFAULT_CODE_FOLDING_RANGE_INDEX];
 
-      for LRow := 0 to Rows.Count - 1 do
+    for LRow := 0 to Rows.Count - 1 do
+    begin
+      LLine := Rows[LRow].Line + 1;
+      LCodeFoldingRange := nil;
+      if LLine < Length(FCodeFoldingRangeFromLine) then
+        LCodeFoldingRange := FCodeFoldingRangeFromLine[LLine];
+      if Assigned(LCodeFoldingRange) and LCodeFoldingRange.Collapsed then
       begin
-        LLine := Rows[LRow].Line + 1;
-        LCodeFoldingRange := nil;
-        if LLine < Length(FCodeFoldingRangeFromLine) then
-          LCodeFoldingRange := FCodeFoldingRangeFromLine[LLine];
-        if Assigned(LCodeFoldingRange) and LCodeFoldingRange.Collapsed then
-        begin
-          LPreviousLine := LLine;
-          Continue;
-        end;
-
-        if ((LPreviousLine <> LLine) and (Lines[LLine - 1] <> '')) then
-        begin
-          LLineText := Lines[LLine - 1];
-          LLinePos := @LLineText[1];
-          LLineEndPos := @LLineText[Length(LLineText)];
-          LBeginningOfLine := True;
-          while (LLinePos <= LLineEndPos) do
-            if (not SkipEmptySpace()) then
-            begin
-              if Highlighter.MultiHighlighter then
-                if not MultiHighlighterOpen then
-                  MultiHighlighterClose;
-
-              if SkipRegionsClose then
-                Continue; { while LTextPos <= LTextEndPos do }
-              if SkipRegionsOpen then
-                Break; { Line comment breaks }
-
-              if SkipEmptySpace then
-                Break;
-
-              if LOpenTokenSkipFoldRangeList.Count = 0 then
-              begin
-                RegionItemsClose;
-                if RegionItemsOpen then
-                  Break; { OpenTokenBreaksLine region item option breaks }
-              end;
-
-              if (LLinePos <= LLineEndPos) then
-                Inc(LLinePos);
-
-              { Skip rest of the word }
-              while ((LLinePos <= LLineEndPos)
-                and (LLinePos^.IsLower or LLinePos^.IsUpper or LLinePos^.IsNumber)) do
-                Inc(LLinePos);
-
-              LBeginningOfLine := False; { Not in the beginning of the line anymore }
-            end;
-        end;
         LPreviousLine := LLine;
+        Continue;
       end;
-      { Check the last not empty line }
-      LLine := Lines.Count - 1;
-      while (LLine >= 0) and (Trim(Lines[LLine]) = '') do
-        Dec(LLine);
-      if ((LLine >= 0) and (Lines[LLine] <> '')) then
+
+      if ((LPreviousLine <> LLine) and (Lines[LLine - 1] <> '')) then
       begin
-        LLineText := Lines[LLine];
+        LLineText := Lines[LLine - 1];
         LLinePos := @LLineText[1];
         LLineEndPos := @LLineText[Length(LLineText)];
-        while LOpenTokenFoldRangeList.Count > 0 do
-        begin
-          LLastFoldRange := LOpenTokenFoldRangeList.Last;
-          if Assigned(LLastFoldRange) then
+        LBeginningOfLine := True;
+        while (LLinePos <= LLineEndPos) do
+          if (not SkipEmptySpace()) then
           begin
-            Inc(LLine);
-            LLine := Min(LLine, Lines.Count);
-            if LLastFoldRange.RegionItem.OpenIsClose then
-              LLastFoldRange.LastLine := LLine;
-            LOpenTokenFoldRangeList.Remove(LLastFoldRange);
-            Dec(LFoldCount);
-            RegionItemsClose;
+            if Highlighter.MultiHighlighter then
+              if not MultiHighlighterOpen then
+                MultiHighlighterClose;
+
+            if SkipRegionsClose then
+              Continue; { while LTextPos <= LTextEndPos do }
+            if SkipRegionsOpen then
+              Break; { Line comment breaks }
+
+            if SkipEmptySpace then
+              Break;
+
+            if LOpenTokenSkipFoldRangeList.Count = 0 then
+            begin
+              RegionItemsClose;
+              if RegionItemsOpen then
+                Break; { OpenTokenBreaksLine region item option breaks }
+            end;
+
+            if (LLinePos <= LLineEndPos) then
+              Inc(LLinePos);
+
+            { Skip rest of the word }
+            while ((LLinePos <= LLineEndPos)
+              and (LLinePos^.IsLower or LLinePos^.IsUpper or LLinePos^.IsNumber)) do
+              Inc(LLinePos);
+
+            LBeginningOfLine := False; { Not in the beginning of the line anymore }
           end;
+      end;
+      LPreviousLine := LLine;
+    end;
+    { Check the last not empty line }
+    LLine := Lines.Count - 1;
+    while (LLine >= 0) and (Trim(Lines[LLine]) = '') do
+      Dec(LLine);
+    if ((LLine >= 0) and (Lines[LLine] <> '')) then
+    begin
+      LLineText := Lines[LLine];
+      LLinePos := @LLineText[1];
+      LLineEndPos := @LLineText[Length(LLineText)];
+      while LOpenTokenFoldRangeList.Count > 0 do
+      begin
+        LLastFoldRange := LOpenTokenFoldRangeList.Last;
+        if Assigned(LLastFoldRange) then
+        begin
+          Inc(LLine);
+          LLine := Min(LLine, Lines.Count);
+          if LLastFoldRange.RegionItem.OpenIsClose then
+            LLastFoldRange.LastLine := LLine;
+          LOpenTokenFoldRangeList.Remove(LLastFoldRange);
+          Dec(LFoldCount);
+          RegionItemsClose;
         end;
       end;
-    finally
-      LCodeFoldingRangeIndexList.Free;
-      LOpenTokenSkipFoldRangeList.Free;
-      LOpenTokenFoldRangeList.Free;
     end;
+  finally
+    LCodeFoldingRangeIndexList.Free;
+    LOpenTokenSkipFoldRangeList.Free;
+    LOpenTokenFoldRangeList.Free;
   end;
 end;
 
@@ -11587,6 +11563,7 @@ var
   LDisplayCaretPosition: TBCEditorDisplayPosition;
 begin
   LDisplayCaretPosition := DisplayCaretPosition;
+
   if (LDisplayCaretPosition.Column < LeftColumn) then
     LeftColumn := LDisplayCaretPosition.Column
   else if (LDisplayCaretPosition.Column > LeftColumn + VisibleColumns) then
@@ -11596,7 +11573,7 @@ begin
   begin
     if (LDisplayCaretPosition.Row < TopRow) then
       TopRow := LDisplayCaretPosition.Row
-    else if (LDisplayCaretPosition.Row > TopRow + VisibleRows) then
+    else if ((LDisplayCaretPosition.Row > TopRow + VisibleRows) or AScrollAlways) then
       TopRow := LDisplayCaretPosition.Row - VisibleRows;
   end
   else
@@ -12671,7 +12648,7 @@ var
 begin
   if (ATextPosition.Line >= Lines.Count) then
     Result := DisplayPosition(ATextPosition.Char, Rows.Count + ATextPosition.Line - Rows[Rows.Count - 1].Line - 1)
-  else if ((Rows.Count = 0) or (Lines.FirstRow[ATextPosition.Line] < 0)) then
+  else if (Lines.FirstRow[ATextPosition.Line] < 0) then
     // Debug 2017-03-29
     raise ERangeError.Create(SBCEditorLineIsNotVisible + #13#10
       + 'ATextPosition.Line: ' + IntToStr(ATextPosition.Line) + #13#10
@@ -13003,34 +12980,6 @@ begin
   end;
 end;
 
-procedure TCustomBCEditor.UpdateLineInRows(const ALine: Integer);
-var
-  LDeletedRows: Integer;
-  LLine: Integer;
-  LRow: Integer;
-begin
-  if (FRows.Count > 0) then
-  begin
-    LRow := Lines.FirstRow[ALine];
-
-    if (LRow >= 0) then
-    begin
-      LDeletedRows := 0;
-      while ((LRow < FRows.Count) and (FRows[LRow].Line = ALine)) do
-      begin
-        FRows.Delete(LRow);
-        Inc(LDeletedRows);
-      end;
-
-      if (LDeletedRows > 0) then
-        for LLine := ALine + 1 to Lines.Count - 1 do
-          Lines.FirstRow[LLine] := Lines.FirstRow[LLine] - LDeletedRows;
-
-      InsertLineIntoRows(ALine, LRow);
-    end;
-  end;
-end;
-
 procedure TCustomBCEditor.UpdateMouseCursor;
 var
   LCursorIndex: Integer;
@@ -13095,6 +13044,34 @@ begin
       LNewCursor := Cursor;
     FKeyboardHandler.ExecuteMouseCursor(Self, LTextPosition, LNewCursor);
     SetCursor(Screen.Cursors[LNewCursor]);
+  end;
+end;
+
+procedure TCustomBCEditor.UpdateRows(const ALine: Integer);
+var
+  LDeletedRows: Integer;
+  LLine: Integer;
+  LRow: Integer;
+begin
+  if (FRows.Count > 0) then
+  begin
+    LRow := Lines.FirstRow[ALine];
+
+    if (LRow >= 0) then
+    begin
+      LDeletedRows := 0;
+      while ((LRow < FRows.Count) and (FRows[LRow].Line = ALine)) do
+      begin
+        FRows.Delete(LRow);
+        Inc(LDeletedRows);
+      end;
+
+      if (LDeletedRows > 0) then
+        for LLine := ALine + 1 to Lines.Count - 1 do
+          Lines.FirstRow[LLine] := Lines.FirstRow[LLine] - LDeletedRows;
+
+      InsertLineIntoRows(ALine, LRow);
+    end;
   end;
 end;
 
