@@ -4583,8 +4583,6 @@ var
   LDisplayCaretPosition: TBCEditorDisplayPosition;
   LMiddle: Integer;
 begin
-  HandleNeeded;
-
   LDisplayCaretPosition := DisplayCaretPosition;
   if (LDisplayCaretPosition.Column < LeftColumn) then
     LeftColumn := LDisplayCaretPosition.Column
@@ -12693,7 +12691,10 @@ begin
   if (ATextPosition.Line >= Lines.Count) then
     Result := DisplayPosition(ATextPosition.Char, Rows.Count + ATextPosition.Line - Rows[Rows.Count - 1].Line - 1)
   else if ((Rows.Count = 0) or (Lines.FirstRow[ATextPosition.Line] < 0)) then
-    raise ERangeError.Create(SBCEditorLineIsNotVisible)
+    // Debug 2017-03-29
+    raise ERangeError.Create(SBCEditorLineIsNotVisible + #13#10
+      + 'ATextPosition.Line: ' + IntToStr(ATextPosition.Line) + #13#10
+      + 'Lines.Count: ' + IntToStr(Lines.Count))
   else
   begin
     Result := DisplayPosition(ATextPosition.Char, Lines.FirstRow[ATextPosition.Line]);
