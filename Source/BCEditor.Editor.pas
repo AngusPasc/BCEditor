@@ -1841,10 +1841,10 @@ function TCustomBCEditor.CodeFoldingCollapsableFoldRangeForLine(const ALine: Int
 var
   LCodeFoldingRange: TBCEditorCodeFolding.TRanges.TRange;
 begin
-  Result := nil;
-
   LCodeFoldingRange := CodeFoldingRangeForLine(ALine);
-  if Assigned(LCodeFoldingRange) and LCodeFoldingRange.Collapsable then
+  if (not Assigned(LCodeFoldingRange) or not LCodeFoldingRange.Collapsable) then
+    Result := nil
+  else
     Result := LCodeFoldingRange;
 end;
 
@@ -1854,7 +1854,7 @@ var
 begin
   Result := nil;
 
-  if (ALine > 0) and (ALine < Length(FCodeFoldingRangeToLine)) then
+  if (ALine < Length(FCodeFoldingRangeToLine)) then
   begin
     LCodeFoldingRange := FCodeFoldingRangeToLine[ALine];
     if Assigned(LCodeFoldingRange) then
@@ -1899,7 +1899,7 @@ end;
 function TCustomBCEditor.CodeFoldingRangeForLine(const ALine: Integer): TBCEditorCodeFolding.TRanges.TRange;
 begin
   Result := nil;
-  if (ALine > 0) and (ALine < Length(FCodeFoldingRangeFromLine)) then
+  if (ALine < Length(FCodeFoldingRangeFromLine)) then
     Result := FCodeFoldingRangeFromLine[ALine]
 end;
 
@@ -1912,7 +1912,7 @@ var
 begin
   if (FCodeFolding.Visible) then
   begin
-    LLength := Lines.Count + 1;
+    LLength := Lines.Count;
     SetLength(FCodeFoldingTreeLine, 0);
     SetLength(FCodeFoldingTreeLine, LLength);
     SetLength(FCodeFoldingRangeFromLine, 0);
@@ -1926,7 +1926,6 @@ begin
         if (not LCodeFoldingRange.ParentCollapsed
           and ((LCodeFoldingRange.FirstLine <> LCodeFoldingRange.LastLine)
             or LCodeFoldingRange.RegionItem.TokenEndIsPreviousLine and (LCodeFoldingRange.FirstLine = LCodeFoldingRange.LastLine))) then
-          if (LCodeFoldingRange.FirstLine > 0) and (LCodeFoldingRange.FirstLine <= LLength) then
           begin
             FCodeFoldingRangeFromLine[LCodeFoldingRange.FirstLine] := LCodeFoldingRange;
 
@@ -1944,16 +1943,12 @@ end;
 
 function TCustomBCEditor.CodeFoldingTreeEndForLine(const ALine: Integer): Boolean;
 begin
-  Result := False;
-  if (ALine > 0) and (ALine < Length(FCodeFoldingRangeToLine)) then
-    Result := Assigned(FCodeFoldingRangeToLine[ALine]);
+  Result := Assigned(FCodeFoldingRangeToLine[ALine]);
 end;
 
 function TCustomBCEditor.CodeFoldingTreeLineForLine(const ALine: Integer): Boolean;
 begin
-  Result := False;
-  if (ALine > 0) and (ALine < Length(FCodeFoldingTreeLine)) then
-    Result := FCodeFoldingTreeLine[ALine]
+  Result := FCodeFoldingTreeLine[ALine]
 end;
 
 procedure TCustomBCEditor.CollapseCodeFoldingLevel(const AFirstLevel: Integer; const ALastLevel: Integer);
@@ -2917,7 +2912,7 @@ begin
         LFoldRange := CodeFoldingFoldRangeForLineTo(LNewCaretPosition.Line);
         if (Assigned(LFoldRange) and LFoldRange.Collapsed) then
         begin
-          LNewCaretPosition.Line := LFoldRange.FirstLine - 1;
+          LNewCaretPosition.Line := LFoldRange.FirstLine;
           Inc(LNewCaretPosition.Char, Length(Lines[LNewCaretPosition.Line]) + 1);
         end;
 
@@ -3610,7 +3605,7 @@ begin
   begin
     LSelBeginPosition := Lines.SelBeginPosition;
     LLine := Rows[LRow].Line;
-    LTextCaretPosition := DisplayToText(DisplayPosition(1, LRow));
+    LTextCaretPosition := DisplayToText(DisplayPosition(0, LRow));
 
     Lines.BeginUpdate();
     try
@@ -4331,7 +4326,7 @@ begin
       and ((LNewCaretPosition = Lines.CaretPosition) or (LNewCaretPosition.Char < Length(Lines[LNewCaretPosition.Line])))
       and IsWordChar(Lines[LNewCaretPosition.Line][1 + LNewCaretPosition.Char - 1])) then
       LNewCaretPosition := WordStart(LNewCaretPosition);
-    MoveCaretAndSelection(Lines.CaretPosition, LNewCaretPosition, ACommand = ecSelectionWordRight);
+    MoveCaretAndSelection(Lines.CaretPosition, LNewCaretPosition, ACommand = ecSelectionWordLeft);
   end
   else
     Lines.CaretPosition := Lines.EOLPosition[Lines.Count - 1];
@@ -4649,11 +4644,11 @@ var
 begin
   if (ARange.Collapsed) then
   begin
-    for LLine := ARange.FirstLine + 1 to ARange.LastLine do
-      InsertLineIntoRows(LLine, False);
-
     ARange.Collapsed := False;
     ARange.SetParentCollapsedOfSubCodeFoldingRanges(False, ARange.FoldRangeLevel);
+
+    for LLine := ARange.FirstLine + 1 to ARange.LastLine do
+      InsertLineIntoRows(LLine, False);
   end;
 end;
 
@@ -6020,7 +6015,7 @@ begin
     for LIndex := 0 to FAllCodeFoldingRanges.AllCount - 1 do
     begin
       LRange := FAllCodeFoldingRanges[LIndex];
-      if LRange.FirstLine > ALine then
+      if LRange.FirstLine >= ALine then
         Break
       else if LRange.Collapsed then
         ExpandCodeFoldingRange(LRange);
@@ -6532,7 +6527,7 @@ begin
                 Inc(LPos);
                 Inc(LTokenPos);
               end;
-              if (LTokenPos >= LTokenEndPos) then { If found, pop skip region from the stack }
+              if (LTokenPos > LTokenEndPos) then { If found, pop skip region from the stack }
               begin
                 if (IsWholeWord((LPBookmarkText - 1)^, LPos^)) then { Not interested in partial hits }
                   Exit(True)
@@ -7375,10 +7370,10 @@ begin
                 Font := FCodeFolding.Hint.Font;
               end;
 
-              LLine := LFoldRange.LastLine - LFoldRange.FirstLine - 1;
+              LLine := LFoldRange.LastLine - LFoldRange.FirstLine;
               if LLine > FCodeFolding.Hint.RowCount then
                 LLine := FCodeFolding.Hint.RowCount;
-              for LIndex := LFoldRange.FirstLine - 1 to LFoldRange.FirstLine + LLine do
+              for LIndex := LFoldRange.FirstLine to LFoldRange.FirstLine + LLine - 1 do
                 FCodeFoldingHintForm.ItemList.Add(Lines.ExpandedStrings[LIndex]);
               if LLine = FCodeFolding.Hint.RowCount then
                 FCodeFoldingHintForm.ItemList.Add('...');
@@ -8083,7 +8078,7 @@ begin
     LLine := Max(DisplayToText(DisplayCaretPosition).Line, Length(FCodeFoldingRangeFromLine) - 1);
     while ((LLine > 0) and not Assigned(FCodeFoldingRangeFromLine[LLine])) do
       Dec(LLine);
-    if ((LLine > 0) and Assigned(FCodeFoldingRangeFromLine[LLine])) then
+    if (Assigned(FCodeFoldingRangeFromLine[LLine])) then
       LRange := FCodeFoldingRangeFromLine[LLine]
   end;
 
@@ -8405,7 +8400,7 @@ begin
             if not LCodeFoldingRange.RegionItem.ShowGuideLine then
               Continue;
 
-            X := FLeftMarginWidth + GetLineIndentLevel(LCodeFoldingRange.LastLine - 1) * CharWidth;
+            X := FLeftMarginWidth + GetLineIndentLevel(LCodeFoldingRange.LastLine) * CharWidth;
 
             if not AMinimap then
               Dec(X, LeftColumn * CharWidth);
@@ -10112,8 +10107,8 @@ var
         if Assigned(LFoldRange) and LFoldRange.Collapsed then
         begin
           LOpenTokenEndLen := 0;
-          LFromLineText := Lines[LFoldRange.FirstLine - 1];
-          LToLineText := Lines[LFoldRange.LastLine - 1];
+          LFromLineText := Lines[LFoldRange.FirstLine];
+          LToLineText := Lines[LFoldRange.LastLine];
 
           LOpenTokenEndPos := Pos(LFoldRange.RegionItem.OpenTokenEnd, AnsiUpperCase(LFromLineText));
 
@@ -10563,12 +10558,9 @@ procedure TCustomBCEditor.RescanCodeFoldingRanges;
 var
   LCodeFoldingRange: TBCEditorCodeFolding.TRanges.TRange;
   LIndex: Integer;
-  LLengthCodeFoldingRangeFromLine: Integer;
-  LLengthCodeFoldingRangeToLine: Integer;
 begin
   FRescanCodeFolding := False;
-  LLengthCodeFoldingRangeFromLine := Length(FCodeFoldingRangeFromLine);
-  LLengthCodeFoldingRangeToLine := Length(FCodeFoldingRangeToLine);
+
   { Delete all uncollapsed folds }
   for LIndex := FAllCodeFoldingRanges.AllCount - 1 downto 0 do
   begin
@@ -10577,10 +10569,8 @@ begin
     begin
       if not LCodeFoldingRange.Collapsed and not LCodeFoldingRange.ParentCollapsed then
       begin
-        if (LCodeFoldingRange.FirstLine > 0) and (LCodeFoldingRange.FirstLine <= LLengthCodeFoldingRangeFromLine) then
-          FCodeFoldingRangeFromLine[LCodeFoldingRange.FirstLine] := nil;
-        if (LCodeFoldingRange.LastLine > 0) and (LCodeFoldingRange.LastLine <= LLengthCodeFoldingRangeToLine) then
-          FCodeFoldingRangeToLine[LCodeFoldingRange.LastLine] := nil;
+        FCodeFoldingRangeFromLine[LCodeFoldingRange.FirstLine] := nil;
+        FCodeFoldingRangeToLine[LCodeFoldingRange.LastLine] := nil;
         FreeAndNil(LCodeFoldingRange);
         FAllCodeFoldingRanges.List.Delete(LIndex);
       end
@@ -10889,7 +10879,7 @@ var
     begin
       if ACodeFoldingRange.RegionItem.TokenEndIsPreviousLine then
       begin
-        LIndex := LLine - 1;
+        LIndex := LLine;
         while (LIndex > 0) and (Lines[LIndex - 1] = '') do
           Dec(LIndex);
         ACodeFoldingRange.LastLine := LIndex
@@ -11146,7 +11136,7 @@ var
                   else
                     LFoldRanges := FAllCodeFoldingRanges;
 
-                  LCodeFoldingRange := LFoldRanges.Add(FAllCodeFoldingRanges, LLine, GetLineIndentLevel(LLine - 1),
+                  LCodeFoldingRange := LFoldRanges.Add(FAllCodeFoldingRanges, LLine, GetLineIndentLevel(LLine),
                     LFoldCount, LRegionItem, LLine);
                   { Open keyword found }
                   LOpenTokenFoldRangeList.Add(LCodeFoldingRange);
@@ -11367,9 +11357,10 @@ begin
 
     for LRow := 0 to Rows.Count - 1 do
     begin
-      LLine := Rows[LRow].Line + 1;
-      LCodeFoldingRange := nil;
-      if LLine < Length(FCodeFoldingRangeFromLine) then
+      LLine := Rows[LRow].Line;
+      if (LLine >= Length(FCodeFoldingRangeFromLine)) then
+        LCodeFoldingRange := nil
+      else
         LCodeFoldingRange := FCodeFoldingRangeFromLine[LLine];
       if Assigned(LCodeFoldingRange) and LCodeFoldingRange.Collapsed then
       begin
@@ -11377,9 +11368,9 @@ begin
         Continue;
       end;
 
-      if ((LPreviousLine <> LLine) and (Lines[LLine - 1] <> '')) then
+      if ((LPreviousLine <> LLine) and (Lines[LLine] <> '')) then
       begin
-        LLineText := Lines[LLine - 1];
+        LLineText := Lines[LLine];
         LLinePos := @LLineText[1];
         LLineEndPos := @LLineText[Length(LLineText)];
         LBeginningOfLine := True;
@@ -11433,7 +11424,7 @@ begin
         if Assigned(LLastFoldRange) then
         begin
           Inc(LLine);
-          LLine := Min(LLine, Lines.Count);
+          LLine := Min(LLine, Lines.Count - 1);
           if LLastFoldRange.RegionItem.OpenIsClose then
             LLastFoldRange.LastLine := LLine;
           LOpenTokenFoldRangeList.Remove(LLastFoldRange);
@@ -11485,14 +11476,14 @@ begin
           begin
             FCurrentMatchingPair := trOpenAndCloseTokenFound;
 
-            LLineText := Lines.ExpandedStrings[LFoldRange.FirstLine - 1];
+            LLineText := Lines.ExpandedStrings[LFoldRange.FirstLine];
 
             LOpenLineText := AnsiUpperCase(LLineText);
             LTempPosition := Pos(LFoldRange.RegionItem.OpenToken, LOpenLineText);
 
             FCurrentMatchingPairMatch.OpenToken := System.Copy(LLineText, LTempPosition,
               Length(LFoldRange.RegionItem.OpenToken + LFoldRange.RegionItem.OpenTokenCanBeFollowedBy));
-            FCurrentMatchingPairMatch.OpenTokenPos := TextPosition(LTempPosition, LFoldRange.FirstLine - 1);
+            FCurrentMatchingPairMatch.OpenTokenPos := TextPosition(LTempPosition, LFoldRange.FirstLine);
 
             LLine := LFoldRange.LastLine;
             LLineText := Lines.ExpandedStrings[LLine - 1];
@@ -11504,7 +11495,7 @@ begin
             else
               FCurrentMatchingPairMatch.CloseTokenPos :=
                 TextPosition(FCurrentMatchingPairMatch.OpenTokenPos.Char + Length(FCurrentMatchingPairMatch.OpenToken) +
-                2 { +2 = '..' }, LFoldRange.FirstLine - 1);
+                2 { +2 = '..' }, LFoldRange.FirstLine);
           end;
         end;
       end;
@@ -12648,11 +12639,8 @@ var
 begin
   if (ATextPosition.Line >= Lines.Count) then
     Result := DisplayPosition(ATextPosition.Char, Rows.Count + ATextPosition.Line - Rows[Rows.Count - 1].Line - 1)
-  else if (Lines.FirstRow[ATextPosition.Line] < 0) then
-    // Debug 2017-03-29
-    raise ERangeError.Create(SBCEditorLineIsNotVisible + #13#10
-      + 'ATextPosition.Line: ' + IntToStr(ATextPosition.Line) + #13#10
-      + 'Lines.Count: ' + IntToStr(Lines.Count))
+  else if ((Rows.Count > 0) and (Lines.FirstRow[ATextPosition.Line] < 0)) then
+    raise ERangeError.Create(SBCEditorLineIsNotVisible)
   else
   begin
     Result := DisplayPosition(ATextPosition.Char, Lines.FirstRow[ATextPosition.Line]);
